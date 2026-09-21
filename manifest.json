@@ -1,0 +1,10 @@
+{
+	"id": "timeline-plugin",
+	"name": "Timeline",
+	"version": "0.1.0",
+	"minAppVersion": "1.4.0",
+	"description": "Render timelines built from frontmatter events declared across your vault, indexed incrementally as you edit.",
+	"author": "you",
+	"authorUrl": "",
+	"isDesktopOnly": false
+}

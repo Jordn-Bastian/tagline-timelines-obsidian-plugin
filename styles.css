@@ -1,0 +1,36 @@
+.timeline-render {
+	border-left: 2px solid var(--interactive-accent);
+	margin: 1em 0;
+	padding-left: 1em;
+}
+
+.timeline-entry {
+	position: relative;
+	margin-bottom: 1.25em;
+	padding-bottom: 0.25em;
+}
+
+.timeline-entry::before {
+	content: "";
+	position: absolute;
+	left: -1.32em;
+	top: 0.35em;
+	width: 0.6em;
+	height: 0.6em;
+	border-radius: 50%;
+	background: var(--interactive-accent);
+}
+
+.timeline-entry-date {
+	font-size: 0.85em;
+	color: var(--text-muted);
+}
+
+.timeline-entry-title {
+	font-weight: 600;
+	margin: 0.1em 0;
+}
+
+.timeline-entry-description {
+	color: var(--text-normal);
+}
