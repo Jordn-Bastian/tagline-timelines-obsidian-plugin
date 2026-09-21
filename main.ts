@@ -1,4 +1,4 @@
-import { Plugin, TFile, Editor, Events } from "obsidian";
+import { Plugin, TFile, Editor, Events, parseYaml } from "obsidian";
 import {TimelineEntry, TimelineIndex} from "./timeline-index";
 import { TimelineRenderChild } from "./timeline-view";
 import {
@@ -49,23 +49,17 @@ export default class TimelinePlugin extends Plugin {
 		);
 
 		this.registerMarkdownCodeBlockProcessor("render-timeline", (source, el, ctx) => {
-			const timelineConfig = source.trim();
+			const timelineConfig = parseYaml(source.trim());
 
-			let id = "";
-			let sortDesc = false;
+			let id = timelineConfig.hasOwnProperty("id") ? timelineConfig.id : undefined;
 
-			switch(timelineConfig.search("sortDesc:")) {
-				case -1:
-					// no sort config present
-					id = timelineConfig.slice(timelineConfig.indexOf("id:")+3, timelineConfig.length).trim();
-					break;
-				default:
-					id = timelineConfig.slice(timelineConfig.indexOf("id:")+3, timelineConfig.indexOf("sortDesc:")).trim();
-					sortDesc = timelineConfig.slice(timelineConfig.indexOf("sortDesc:")+9, timelineConfig.length) === "true";
-					break;
-			}
+			if (!id)
+				return;
 
-			const child = new TimelineRenderChild(el, id, sortDesc, this.index, this.app, this);
+			let sortDesc = timelineConfig.hasOwnProperty("sortDesc") ? timelineConfig.sortDesc : false;
+			let link = timelineConfig.hasOwnProperty("link") ? timelineConfig.link : true;
+
+			const child = new TimelineRenderChild(el, id, sortDesc, link, this.index, this.app, this);
 			ctx.addChild(child);
 		});
 
@@ -167,8 +161,9 @@ export default class TimelinePlugin extends Plugin {
 				editor.setCursor(0);
 				editor.replaceRange(
 					"```render-timeline\n" +
-					"id:" + data.id + "\n" +
-					"sortDesc:" + data.sortDesc +"\n" +
+					"id: " + data.id + "\n" +
+					"sortDesc: " + data.sortDesc +"\n" +
+					"link: " + data.link +"\n" +
 					"```"
 					,editor.getCursor()
 				);
@@ -177,5 +172,4 @@ export default class TimelinePlugin extends Plugin {
 			}
 		).open();
 	}
-
 }

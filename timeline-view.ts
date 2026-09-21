@@ -1,6 +1,10 @@
-import { App, MarkdownRenderChild, DateValue, moment } from "obsidian";
+import { App, MarkdownRenderChild, moment } from "obsidian";
 import { TimelineIndex } from "./timeline-index";
 import TimelinePlugin from "./main";
+import {
+	TIMELINE_CARD_LAYOUTS,
+	DATE_FORMATS
+} from './settings';
 
 export class TimelineRenderChild extends MarkdownRenderChild {
 	// Paths that contributed to this timeline as of the last render.
@@ -11,6 +15,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 		containerEl: HTMLElement,
 		private timelineId: string,
 		private sortDesc: boolean = false,
+		private link: boolean = true,
 		private index: TimelineIndex,
 		private app: App,
 		private plugin: TimelinePlugin,
@@ -79,19 +84,61 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 			wrapper.setText(`No entries found for timeline "${this.timelineId}".`);
 			return;
 		}
+
 		for (const entry of entries) {
 			const item = wrapper.createDiv({ cls: "timeline-entry" });
 
 			let formattedDate = moment(entry.date, "YYYY-MM-DD").format(this.plugin.settings.dateFormat);
 
-			item.createEl("div", { cls: "timeline-entry-date", text: formattedDate });
-			item.createEl("div", { cls: "timeline-entry-title", text: entry.title, href: entry.path });
+			const dateEl = createEl("div", { cls: "timeline-entry-date", text: formattedDate });
+
+			let titleEl = createEl("a", {cls: "timeline-entry-title internal-link", text: entry.title});
+
+
+			// Order the date/title based on plugin settings
+			switch (this.plugin.settings.timelineCardLayout) {
+				case TIMELINE_CARD_LAYOUTS["Date-First"]:
+					item.appendChild(dateEl);
+					item.appendChild(titleEl);
+					break;
+				case TIMELINE_CARD_LAYOUTS["Title-First"]:
+					item.appendChild(titleEl);
+					item.appendChild(dateEl);
+					break;
+			}
+
 			if (entry.description) {
 				item.createEl("div", {
 					cls: "timeline-entry-description",
 					text: entry.description,
 				});
 			}
+
+			if (this.link) {
+				titleEl.href = entry.path;
+
+				// Click to open the note
+				this.registerDomEvent(titleEl, "click", (evt: MouseEvent) => {
+					evt.preventDefault();
+					this.plugin.app.workspace.openLinkText(
+						entry.path,
+						entry.path,
+						evt.ctrlKey || evt.metaKey // open in new tab/pane if ctrl/cmd held
+					);
+				});
+
+				// Hover preview
+				this.registerDomEvent(titleEl, "mouseover", (evt: MouseEvent) => {
+					this.plugin.app.workspace.trigger("hover-link", {
+						event: evt,
+						source: "timeline-view",
+						hoverParent: item,
+						targetEl: titleEl,
+						linktext: entry.path,
+					});
+				});
+			}
+
 		}
 	}
 }

@@ -1,4 +1,4 @@
-import {App, Modal, Setting, Notice, TFile, TextComponent, BooleanValue, ToggleComponent} from "obsidian";
+import {App, Modal, Setting, Notice, TFile, TextComponent, ToggleComponent} from "obsidian";
 import { TimelineIndex } from "./timeline-index";
 
 export interface TimelineEntryFormData {
@@ -11,6 +11,7 @@ export interface TimelineEntryFormData {
 export interface TimelineRendererFormData {
 	id: string;
 	sortDesc: boolean;
+	link: boolean;
 }
 
 export class AddTimelineEntryModal extends Modal {
@@ -111,7 +112,7 @@ export class AddTimelineRendererModal extends Modal {
 	) {
 		super(app);
 		// Pre-fill sensible defaults: title from the note's filename.
-		this.data = { id: "", sortDesc: false };
+		this.data = { id: "", sortDesc: false, link: true };
 	}
 
 	onOpen() {
@@ -145,6 +146,16 @@ export class AddTimelineRendererModal extends Modal {
 		new Setting(contentEl)
 			.setName("Sort Timeline in descending order")
 			.setDesc('Timelines are sorted in ascending order by default, from oldest to newest event.')
+			.addToggle((toggle) => {
+				this.sortDescComponent = toggle;
+				toggle.setValue(false).onChange((value) => {
+					this.data.sortDesc = value;
+				});
+			});
+
+		new Setting(contentEl)
+			.setName("Link timeline title to the relevant note")
+			.setDesc('By default timeline card titles act as links to the event note.')
 			.addToggle((toggle) => {
 				this.sortDescComponent = toggle;
 				toggle.setValue(false).onChange((value) => {
