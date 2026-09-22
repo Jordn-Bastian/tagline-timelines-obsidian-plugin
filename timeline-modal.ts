@@ -98,6 +98,7 @@ export class AddTimelineEntryModal extends Modal {
 }
 
 export class AddTimelineRendererModal extends Modal {
+    private editMode: boolean = false;
     private data: TimelineRendererFormData;
     private idComponent!: TextComponent | DropdownComponent;
     private cardLayoutComponent!: DropdownComponent;
@@ -110,11 +111,16 @@ export class AddTimelineRendererModal extends Modal {
     constructor(
         app: App,
         private index: TimelineIndex,
+        timelineConfig: TimelineRendererFormData | null,
         private onSubmit: (data: TimelineRendererFormData) => void
     ) {
         super(app);
-        // Pre-fill sensible defaults: title from the note's filename.
-        this.data = new TimelineRendererFormData();
+        if (timelineConfig == null) {
+            this.data = new TimelineRendererFormData();
+        } else {
+            this.data = timelineConfig;
+            this.editMode = true;
+        }
     }
 
     onOpen() {
@@ -138,7 +144,8 @@ export class AddTimelineRendererModal extends Modal {
             idsOptions[id] = id;
         }
 
-        contentEl.createEl("h2", {text: "Add timeline renderer"});
+        let headingText = this.editMode ? "Edit Timeline" : "Create Timeline";
+        contentEl.createEl("h2", {text: headingText});
 
         // Timeline ID: text field + quick-pick dropdown of existing IDs.
         new Setting(contentEl)
@@ -213,7 +220,7 @@ export class AddTimelineRendererModal extends Modal {
 
         new Setting(contentEl).addButton((button) => {
             button
-                .setButtonText("Add Timeline Renderer")
+                .setButtonText("Done")
                 .setCta()
                 .onClick(() => {
                     if (!this.data.id) {
