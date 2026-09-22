@@ -283,7 +283,7 @@ export default class TimelinePlugin extends Plugin {
                 after = ["", ...lines.slice(insertAt)];
             }
 
-            return [...before, ...timelineCodeBlock, ...after].join("\n");
+            return before + "\n" + timelineCodeBlock + "\n" + after;
         });
     }
 
