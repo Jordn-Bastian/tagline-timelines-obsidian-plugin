@@ -1,11 +1,5 @@
 import {App, TFile, CachedMetadata} from "obsidian";
-
-export interface TimelineEntry {
-	path: string;
-	date: string; // ISO-ish string, e.g. "2024-01-15"
-	title: string;
-	description: string;
-}
+import {TimelineEntry} from "./timeline-data";
 
 export class TimelineIndex {
 	private byId: Map<string, TimelineEntry[]> = new Map();

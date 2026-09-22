@@ -1,29 +1,7 @@
 import {App, Modal, Setting, Notice, TFile, TextComponent, ToggleComponent} from "obsidian";
 import { TimelineIndex } from "./timeline-index";
+import {TimelineEntryFormData, TimelineRendererFormData} from "./timeline-data";
 import {DATE_FORMATS, TIMELINE_CARD_LAYOUTS, TimelinePluginSettings} from "./settings";
-
-export interface TimelineEntryFormData {
-	id: string;
-	date: string;
-	title: string;
-	description: string;
-}
-
-export class TimelineRendererFormData {
-	id: string;
-	sortDescending: boolean;
-	link: boolean;
-	showDate: boolean;
-	showDescription: boolean;
-
-	constructor() {
-		this.id = "";
-		this.sortDescending = false;
-		this.link = false;
-		this.showDate = true;
-		this.showDescription = true;
-	}
-}
 
 export class AddTimelineEntryModal extends Modal {
 	private data: TimelineEntryFormData;

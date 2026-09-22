@@ -1,17 +1,9 @@
 import { Plugin, TFile, Editor, Events, parseYaml } from "obsidian";
-import {TimelineEntry, TimelineIndex} from "./timeline-index";
+import {TimelineIndex} from "./timeline-index";
 import { TimelineRenderChild } from "./timeline-view";
-import {
-	AddTimelineEntryModal,
-	AddTimelineRendererModal,
-	TimelineEntryFormData,
-	TimelineRendererFormData
-} from "./timeline-modal";
-import {
-	DEFAULT_SETTINGS,
-	TimelinePluginSettings,
-	TimelinePluginSettingsTab,
-} from './settings';
+import { AddTimelineEntryModal, AddTimelineRendererModal } from "./timeline-modal";
+import { TimelineEntryFormData, TimelineRendererFormData } from "./timeline-data";
+import { DEFAULT_SETTINGS, TimelinePluginSettings, TimelinePluginSettingsTab } from './settings';
 
 export default class TimelinePlugin extends Plugin {
 	index!: TimelineIndex;
@@ -51,15 +43,12 @@ export default class TimelinePlugin extends Plugin {
 		this.registerMarkdownCodeBlockProcessor("render-timeline", (source, el, ctx) => {
 			const timelineConfig = parseYaml(source.trim());
 
-			let id = timelineConfig.hasOwnProperty("id") ? timelineConfig.id : undefined;
+			let configData = new TimelineRendererFormData();
 
-			if (!id)
-				return;
+			if (!configData.applyConfig(timelineConfig))
+				return
 
-			let sortDesc = timelineConfig.hasOwnProperty("sortDesc") ? timelineConfig.sortDesc : false;
-			let link = timelineConfig.hasOwnProperty("link") ? timelineConfig.link : true;
-
-			const child = new TimelineRenderChild(el, id, sortDesc, link, this.index, this.app, this);
+			const child = new TimelineRenderChild(el, configData, this.index, this.app, this);
 			ctx.addChild(child);
 		});
 

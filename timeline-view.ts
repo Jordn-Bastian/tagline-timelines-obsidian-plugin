@@ -1,10 +1,8 @@
 import { App, MarkdownRenderChild, moment } from "obsidian";
 import { TimelineIndex } from "./timeline-index";
 import TimelinePlugin from "./main";
-import {
-	TIMELINE_CARD_LAYOUTS,
-	DATE_FORMATS
-} from './settings';
+import { TIMELINE_CARD_LAYOUTS, DATE_FORMATS } from './settings';
+import {TimelineRendererFormData} from "./timeline-data";
 
 export class TimelineRenderChild extends MarkdownRenderChild {
 	// Paths that contributed to this timeline as of the last render.
@@ -13,9 +11,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 
 	constructor(
 		containerEl: HTMLElement,
-		private timelineId: string,
-		private sortDesc: boolean = false,
-		private link: boolean = true,
+		private config : TimelineRendererFormData,
 		private index: TimelineIndex,
 		private app: App,
 		private plugin: TimelinePlugin,
@@ -57,7 +53,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 
 		this.registerEvent((
 			this.plugin.events.on("rebuild-timeline", (timelineID: string) => {
-				if (timelineID != this.timelineId )
+				if (timelineID != this.config.id )
 					return;
 				this.render();
 			})
@@ -70,18 +66,18 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 	 */
 	private isRelevant(path: string): boolean {
 		if (this.lastKnownPaths.has(path)) return true;
-		return this.index.getEntries(this.timelineId).some((e) => e.path === path);
+		return this.index.getEntries(this.config.id).some((e) => e.path === path);
 	}
 
 	render() {
 		this.containerEl.empty();
-		const entries = this.index.getEntries(this.timelineId, this.sortDesc);
+		const entries = this.index.getEntries(this.config.id, this.config.sortDescending);
 		this.lastKnownPaths = new Set(entries.map((e) => e.path));
 
 		const wrapper = this.containerEl.createDiv({ cls: "timeline-render" });
 
 		if (entries.length === 0) {
-			wrapper.setText(`No entries found for timeline "${this.timelineId}".`);
+			wrapper.setText(`No entries found for timeline "${this.config.id}".`);
 			return;
 		}
 
@@ -94,7 +90,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 
 			let titleEl: HTMLDivElement | HTMLAnchorElement;
 
-			if (this.link) {
+			if (this.config.link) {
 				titleEl = createEl("a", {cls: "timeline-entry-title internal-link", text: entry.title});
 				titleEl.href = entry.path;
 
@@ -134,7 +130,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 					break;
 			}
 
-			if (entry.description) {
+			if (entry.description && this.config.showDescription) {
 				item.createEl("div", {
 					cls: "timeline-entry-description",
 					text: entry.description,
