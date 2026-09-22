@@ -5,14 +5,16 @@ export class TimelineRendererFormData {
     showDate: boolean;
     showDescription: boolean;
     showPicture: boolean;
+    layout: string;
 
     constructor() {
         this.id = "";
         this.sortDescending = false;
-        this.link = false;
+        this.link = true;
         this.showDate = true;
         this.showDescription = true;
         this.showPicture = true;
+        this.layout = TIMELINE_CARD_LAYOUTS["Title-First"];
     }
 
     applyConfig(source: Record<string, string | boolean>) {
@@ -42,3 +44,9 @@ export interface TimelineEntry {
     description: string;
     picturePath: string;
 }
+
+export const TIMELINE_CARD_LAYOUTS = {
+
+    "Title-First" : "Title-First",
+    "Date-First" : "Date-First"
+};

@@ -3,7 +3,6 @@ import TimelinePlugin from './main';
 
 export interface TimelinePluginSettings {
     dateFormat: string;
-    timelineCardLayout: string;
 }
 
 export const DATE_FORMATS = {
@@ -11,15 +10,8 @@ export const DATE_FORMATS = {
     "DD-MM-YYYY" : "DD-MM-YYYY"
 };
 
-export const TIMELINE_CARD_LAYOUTS = {
-
-    "Title-First" : "Title-First",
-    "Date-First" : "Date-First"
-};
-
 export const DEFAULT_SETTINGS: TimelinePluginSettings = {
     dateFormat: DATE_FORMATS["YYYY-MM-DD"],
-    timelineCardLayout : TIMELINE_CARD_LAYOUTS["Title-First"]
 };
 
 export class TimelinePluginSettingsTab extends PluginSettingTab {
@@ -40,15 +32,6 @@ export class TimelinePluginSettingsTab extends PluginSettingTab {
             .addDropdown((dropdown)=> {
                 dropdown.addOptions(DATE_FORMATS).setValue(this.plugin.settings.dateFormat).onChange(async (value) => {
                     this.plugin.settings.dateFormat = value;
-                    await this.plugin.saveSettings();
-                });
-            });
-
-        new Setting(containerEl)
-            .setName('Timeline card layout')
-            .addDropdown((dropdown)=> {
-                dropdown.addOptions(TIMELINE_CARD_LAYOUTS).setValue(this.plugin.settings.timelineCardLayout).onChange(async (value) => {
-                    this.plugin.settings.timelineCardLayout = value;
                     await this.plugin.saveSettings();
                 });
             });

@@ -1,8 +1,8 @@
 import { App, MarkdownRenderChild, moment } from "obsidian";
 import { TimelineIndex } from "./timeline-index";
 import TimelinePlugin from "./main";
-import { TIMELINE_CARD_LAYOUTS, DATE_FORMATS } from './settings';
-import {TimelineRendererFormData} from "./timeline-data";
+import { DATE_FORMATS } from './settings';
+import {TimelineRendererFormData, TIMELINE_CARD_LAYOUTS} from "./timeline-data";
 
 export class TimelineRenderChild extends MarkdownRenderChild {
 	// Paths that contributed to this timeline as of the last render.
@@ -134,7 +134,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 			}
 
 			// Order elements
-			switch (this.plugin.settings.timelineCardLayout) {
+			switch (this.config.layout) {
 				case TIMELINE_CARD_LAYOUTS["Title-First"]:
 					newCard.firstEl.appendChild(titleEl);
 					if (this.config.showDate && dateEl) {
