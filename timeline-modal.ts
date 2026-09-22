@@ -1,5 +1,6 @@
 import {App, Modal, Setting, Notice, TFile, TextComponent, ToggleComponent} from "obsidian";
 import { TimelineIndex } from "./timeline-index";
+import {DATE_FORMATS, TIMELINE_CARD_LAYOUTS, TimelinePluginSettings} from "./settings";
 
 export interface TimelineEntryFormData {
 	id: string;
@@ -8,10 +9,20 @@ export interface TimelineEntryFormData {
 	description: string;
 }
 
-export interface TimelineRendererFormData {
+export class TimelineRendererFormData {
 	id: string;
-	sortDesc: boolean;
+	sortDescending: boolean;
 	link: boolean;
+	showDates: boolean;
+	showDescription: boolean;
+
+	constructor() {
+		this.id = "";
+		this.sortDescending = false;
+		this.link = false;
+		this.showDates = true;
+		this.showDescription = true;
+	}
 }
 
 export class AddTimelineEntryModal extends Modal {
@@ -103,7 +114,10 @@ export class AddTimelineEntryModal extends Modal {
 export class AddTimelineRendererModal extends Modal {
 	private data: TimelineRendererFormData;
 	private idTextComponent!: TextComponent;
-	private sortDescComponent!: ToggleComponent;
+	private sortDescendingComponent!: ToggleComponent;
+	private linkComponent!: ToggleComponent;
+	private showDatesComponent!: ToggleComponent;
+	private showDescriptionComponent!: ToggleComponent;
 
 	constructor(
 		app: App,
@@ -112,7 +126,7 @@ export class AddTimelineRendererModal extends Modal {
 	) {
 		super(app);
 		// Pre-fill sensible defaults: title from the note's filename.
-		this.data = { id: "", sortDesc: false, link: true };
+		this.data = new TimelineRendererFormData();
 	}
 
 	onOpen() {
@@ -147,9 +161,9 @@ export class AddTimelineRendererModal extends Modal {
 			.setName("Sort Timeline in descending order")
 			.setDesc('Timelines are sorted in ascending order by default, from oldest to newest event.')
 			.addToggle((toggle) => {
-				this.sortDescComponent = toggle;
-				toggle.setValue(false).onChange((value) => {
-					this.data.sortDesc = value;
+				this.sortDescendingComponent = toggle;
+				toggle.setValue(this.data.sortDescending).onChange((value) => {
+					this.data.sortDescending = value;
 				});
 			});
 
@@ -157,9 +171,29 @@ export class AddTimelineRendererModal extends Modal {
 			.setName("Link timeline title to the relevant note")
 			.setDesc('By default timeline card titles act as links to the event note.')
 			.addToggle((toggle) => {
-				this.sortDescComponent = toggle;
-				toggle.setValue(false).onChange((value) => {
-					this.data.sortDesc = value;
+				this.linkComponent = toggle;
+				toggle.setValue(this.data.link).onChange((value) => {
+					this.data.link = value;
+				});
+			});
+
+		new Setting(contentEl)
+			.setName("Show dates")
+			.setDesc('By default timeline cards include show dates.')
+			.addToggle((toggle) => {
+				this.showDatesComponent = toggle;
+				toggle.setValue(this.data.showDates).onChange((value) => {
+					this.data.showDates = value;
+				});
+			});
+
+		new Setting(contentEl)
+			.setName("Show description")
+			.setDesc('By default timeline cards include show descriptions.')
+			.addToggle((toggle) => {
+				this.showDescriptionComponent = toggle;
+				toggle.setValue(this.data.showDescription).onChange((value) => {
+					this.data.showDescription = value;
 				});
 			});
 
