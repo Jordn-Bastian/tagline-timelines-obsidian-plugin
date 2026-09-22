@@ -92,29 +92,10 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 
 			const dateEl = createEl("div", { cls: "timeline-entry-date", text: formattedDate });
 
-			let titleEl = createEl("a", {cls: "timeline-entry-title internal-link", text: entry.title});
-
-
-			// Order the date/title based on plugin settings
-			switch (this.plugin.settings.timelineCardLayout) {
-				case TIMELINE_CARD_LAYOUTS["Date-First"]:
-					item.appendChild(dateEl);
-					item.appendChild(titleEl);
-					break;
-				case TIMELINE_CARD_LAYOUTS["Title-First"]:
-					item.appendChild(titleEl);
-					item.appendChild(dateEl);
-					break;
-			}
-
-			if (entry.description) {
-				item.createEl("div", {
-					cls: "timeline-entry-description",
-					text: entry.description,
-				});
-			}
+			let titleEl: HTMLDivElement | HTMLAnchorElement;
 
 			if (this.link) {
+				titleEl = createEl("a", {cls: "timeline-entry-title internal-link", text: entry.title});
 				titleEl.href = entry.path;
 
 				// Click to open the note
@@ -136,6 +117,27 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 						targetEl: titleEl,
 						linktext: entry.path,
 					});
+				});
+			} else {
+				titleEl = createEl("div", {cls: "timeline-entry-title", text: entry.title});
+			}
+
+			// Order the date/title based on plugin settings
+			switch (this.plugin.settings.timelineCardLayout) {
+				case TIMELINE_CARD_LAYOUTS["Date-First"]:
+					item.appendChild(dateEl);
+					item.appendChild(titleEl);
+					break;
+				case TIMELINE_CARD_LAYOUTS["Title-First"]:
+					item.appendChild(titleEl);
+					item.appendChild(dateEl);
+					break;
+			}
+
+			if (entry.description) {
+				item.createEl("div", {
+					cls: "timeline-entry-description",
+					text: entry.description,
 				});
 			}
 
