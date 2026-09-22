@@ -13,14 +13,14 @@ export class TimelineRendererFormData {
 	id: string;
 	sortDescending: boolean;
 	link: boolean;
-	showDates: boolean;
+	showDate: boolean;
 	showDescription: boolean;
 
 	constructor() {
 		this.id = "";
 		this.sortDescending = false;
 		this.link = false;
-		this.showDates = true;
+		this.showDate = true;
 		this.showDescription = true;
 	}
 }
@@ -182,8 +182,8 @@ export class AddTimelineRendererModal extends Modal {
 			.setDesc('By default timeline cards include show dates.')
 			.addToggle((toggle) => {
 				this.showDatesComponent = toggle;
-				toggle.setValue(this.data.showDates).onChange((value) => {
-					this.data.showDates = value;
+				toggle.setValue(this.data.showDate).onChange((value) => {
+					this.data.showDate = value;
 				});
 			});
 

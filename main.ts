@@ -162,8 +162,10 @@ export default class TimelinePlugin extends Plugin {
 				editor.replaceRange(
 					"```render-timeline\n" +
 					"id: " + data.id + "\n" +
-					"sortDesc: " + data.sortDesc +"\n" +
+					"sortDescending: " + data.sortDescending +"\n" +
 					"link: " + data.link +"\n" +
+					"showDate: " + data.showDate +"\n" +
+					"showDescription: " + data.showDescription +"\n" +
 					"```"
 					,editor.getCursor()
 				);
