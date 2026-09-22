@@ -2,7 +2,7 @@ import { Plugin, TFile, Editor, Events, parseYaml } from "obsidian";
 import {TimelineIndex} from "./timeline-index";
 import { TimelineRenderChild } from "./timeline-view";
 import { AddTimelineEntryModal, AddTimelineRendererModal } from "./timeline-modal";
-import { TimelineEntryFormData, TimelineRendererFormData } from "./timeline-data";
+import {TimelineEntry, TimelineRendererFormData} from "./timeline-data";
 import { DEFAULT_SETTINGS, TimelinePluginSettings, TimelinePluginSettingsTab } from './settings';
 
 export default class TimelinePlugin extends Plugin {
@@ -128,12 +128,13 @@ export default class TimelinePlugin extends Plugin {
 			this.app,
 			this.index,
 			file,
-			async (data: TimelineEntryFormData) => {
+			async (data: TimelineEntry) => {
 				await this.app.fileManager.processFrontMatter(file, (fm) => {
 					fm["timeline-id"] = data.id;
 					fm["timeline-date"] = data.date;
 					fm["timeline-title"] = data.title;
 					fm["timeline-description"] = data.description;
+					fm["timeline-picture-path"] = data.picturePath;
 				});
 				// No manual index update needed here: writing frontmatter
 				// triggers vault modify -> metadataCache 'changed', which our
@@ -155,6 +156,7 @@ export default class TimelinePlugin extends Plugin {
 					"link: " + data.link +"\n" +
 					"showDate: " + data.showDate +"\n" +
 					"showDescription: " + data.showDescription +"\n" +
+					"showPicture: " + data.showPicture +"\n" +
 					"```"
 					,editor.getCursor()
 				);

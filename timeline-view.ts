@@ -82,13 +82,21 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 		}
 
 		for (const entry of entries) {
-			const item = wrapper.createDiv({ cls: "timeline-entry" });
+			const newCard = new TimelineEntryCard();
+
+			let titleEl: HTMLDivElement | HTMLAnchorElement;
 
 			let formattedDate = moment(entry.date, "YYYY-MM-DD").format(this.plugin.settings.dateFormat);
 
-			const dateEl = createEl("div", { cls: "timeline-entry-date", text: formattedDate });
+			let dateEl: HTMLDivElement | null = null;
 
-			let titleEl: HTMLDivElement | HTMLAnchorElement;
+			let descriptionEl: HTMLDivElement | null = null;
+
+			let pictureEl: HTMLDivElement | null = null;
+
+			if (this.config.showDate) {
+				dateEl = createEl("div", { cls: "timeline-entry-date", text: formattedDate });
+			}
 
 			if (this.config.link) {
 				titleEl = createEl("a", {cls: "timeline-entry-title internal-link", text: entry.title});
@@ -109,7 +117,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 					this.plugin.app.workspace.trigger("hover-link", {
 						event: evt,
 						source: "timeline-view",
-						hoverParent: item,
+						hoverParent: newCard,
 						targetEl: titleEl,
 						linktext: entry.path,
 					});
@@ -118,25 +126,55 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 				titleEl = createEl("div", {cls: "timeline-entry-title", text: entry.title});
 			}
 
-			// Order the date/title based on plugin settings
-			switch (this.plugin.settings.timelineCardLayout) {
-				case TIMELINE_CARD_LAYOUTS["Date-First"]:
-					item.appendChild(dateEl);
-					item.appendChild(titleEl);
-					break;
-				case TIMELINE_CARD_LAYOUTS["Title-First"]:
-					item.appendChild(titleEl);
-					item.appendChild(dateEl);
-					break;
-			}
-
 			if (entry.description && this.config.showDescription) {
-				item.createEl("div", {
+				descriptionEl = createEl("div", {
 					cls: "timeline-entry-description",
 					text: entry.description,
 				});
 			}
 
+			// Order elements
+			switch (this.plugin.settings.timelineCardLayout) {
+				case TIMELINE_CARD_LAYOUTS["Title-First"]:
+					newCard.firstEl.appendChild(titleEl);
+					if (this.config.showDate && dateEl) {
+						newCard.secondEl.appendChild(dateEl);
+					}
+					break;
+				case TIMELINE_CARD_LAYOUTS["Date-First"]:
+					if (this.config.showDate && dateEl) {
+						newCard.firstEl.appendChild(dateEl);
+					}
+					newCard.secondEl.appendChild(titleEl);
+					break;
+			}
+
+			if (this.config.showDescription && descriptionEl) {
+				newCard.thirdEl.appendChild(descriptionEl);
+			}
+			if (this.config.showPicture && pictureEl) {
+				newCard.pictureEl.appendChild(pictureEl);
+			}
+
+			wrapper.appendChild(newCard.parent);
 		}
+	}
+}
+
+class TimelineEntryCard {
+	parent: HTMLDivElement;
+	firstEl: HTMLDivElement | HTMLAnchorElement;
+	secondEl: HTMLDivElement | HTMLAnchorElement;
+	thirdEl: HTMLDivElement;
+	pictureEl: HTMLDivElement;
+
+
+	// TODO Add grad layout
+	constructor() {
+		this.parent = createDiv({ cls: "timeline-entry" });
+		this.firstEl = this.parent.createDiv();
+		this.secondEl = this.parent.createDiv();
+		this.thirdEl = this.parent.createDiv();
+		this.pictureEl = this.parent.createDiv();
 	}
 }

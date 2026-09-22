@@ -68,10 +68,12 @@ export class TimelineIndex {
 		if (!newId) return; // no timeline frontmatter (any more)
 
 		const entry: TimelineEntry = {
+			id: newId,
 			path: file.path,
 			date: String(fm?.["timeline-date"] ?? ""),
 			title: fm?.["timeline-title"] ?? file.basename,
 			description: fm?.["timeline-description"] ?? "",
+			picturePath: fm?.["timeline-picture-path"] ?? "",
 		};
 
 		let list = this.byId.get(newId) ?? [];

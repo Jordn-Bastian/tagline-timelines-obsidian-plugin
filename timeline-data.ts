@@ -4,6 +4,7 @@ export class TimelineRendererFormData {
     link: boolean;
     showDate: boolean;
     showDescription: boolean;
+    showPicture: boolean;
 
     constructor() {
         this.id = "";
@@ -11,6 +12,7 @@ export class TimelineRendererFormData {
         this.link = false;
         this.showDate = true;
         this.showDescription = true;
+        this.showPicture = true;
     }
 
     applyConfig(source: Record<string, string | boolean>) {
@@ -33,15 +35,10 @@ export class TimelineRendererFormData {
 }
 
 export interface TimelineEntry {
+    id: string;
     path: string;
     date: string; // ISO-ish string, e.g. "2024-01-15"
     title: string;
     description: string;
-}
-
-export interface TimelineEntryFormData {
-    id: string;
-    date: string;
-    title: string;
-    description: string;
+    picturePath: string;
 }

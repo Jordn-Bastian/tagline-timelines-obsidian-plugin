@@ -1,21 +1,21 @@
 import {App, Modal, Setting, Notice, TFile, TextComponent, ToggleComponent} from "obsidian";
 import { TimelineIndex } from "./timeline-index";
-import {TimelineEntryFormData, TimelineRendererFormData} from "./timeline-data";
+import {TimelineEntry, TimelineRendererFormData} from "./timeline-data";
 import {DATE_FORMATS, TIMELINE_CARD_LAYOUTS, TimelinePluginSettings} from "./settings";
 
 export class AddTimelineEntryModal extends Modal {
-	private data: TimelineEntryFormData;
+	private data: TimelineEntry;
 	private idTextComponent!: TextComponent;
 
 	constructor(
 		app: App,
 		private index: TimelineIndex,
 		private file: TFile,
-		private onSubmit: (data: TimelineEntryFormData) => void
+		private onSubmit: (data: TimelineEntry) => void
 	) {
 		super(app);
 		// Pre-fill sensible defaults: title from the note's filename.
-		this.data = { id: "", date: "", title: file.basename, description: "" };
+		this.data = { id: "", path: "", date: "", title: file.basename, description: "", picturePath: "" };
 	}
 
 	onOpen() {
@@ -69,6 +69,12 @@ export class AddTimelineEntryModal extends Modal {
 			textarea.inputEl.rows = 3;
 		});
 
+		new Setting(contentEl).setName("Path to picture").addSearch((search) => {
+			search.onChange((value) => {
+				this.data.picturePath = value;
+			})
+		});
+
 		new Setting(contentEl).addButton((button) => {
 			button
 				.setButtonText("Add entry")
@@ -96,6 +102,7 @@ export class AddTimelineRendererModal extends Modal {
 	private linkComponent!: ToggleComponent;
 	private showDatesComponent!: ToggleComponent;
 	private showDescriptionComponent!: ToggleComponent;
+	private showPictureComponent!: ToggleComponent;
 
 	constructor(
 		app: App,
@@ -167,11 +174,21 @@ export class AddTimelineRendererModal extends Modal {
 
 		new Setting(contentEl)
 			.setName("Show description")
-			.setDesc('By default timeline cards include show descriptions.')
+			.setDesc('By default timeline cards show descriptions.')
 			.addToggle((toggle) => {
 				this.showDescriptionComponent = toggle;
 				toggle.setValue(this.data.showDescription).onChange((value) => {
 					this.data.showDescription = value;
+				});
+			});
+
+		new Setting(contentEl)
+			.setName("Show picture")
+			.setDesc('By default timeline cards show pictures.')
+			.addToggle((toggle) => {
+				this.showPictureComponent = toggle;
+				toggle.setValue(this.data.showPicture).onChange((value) => {
+					this.data.showPicture = value;
 				});
 			});
 
