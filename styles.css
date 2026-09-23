@@ -34,3 +34,24 @@
 .timeline-entry-description {
 	color: var(--text-normal);
 }
+
+.timeline-edit-icon {
+	position: absolute !important;
+	top: 4px;
+	right: 36px;
+	left: auto;
+	bottom: auto;
+	width: 24px;
+	height: 24px;
+	opacity: 0;
+	pointer-events: none; /*not clickable at all until visible on hover */
+}
+
+.timeline-render:hover .timeline-edit-icon {
+	opacity: 1;
+	pointer-events: auto; /* clickable, and only on hover */
+}
+
+.markdown-reading-view .timeline-edit-icon {
+	display: none;
+}

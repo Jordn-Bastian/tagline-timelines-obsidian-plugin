@@ -1,4 +1,4 @@
-import { App, MarkdownRenderChild, moment } from "obsidian";
+import {App, MarkdownRenderChild, MarkdownPostProcessorContext, moment, setIcon, EditorPosition, TFile} from "obsidian";
 import { TimelineIndex } from "./timeline-index";
 import TimelinePlugin from "./main";
 import { DATE_FORMATS } from './settings';
@@ -14,6 +14,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 		private config : TimelineRendererFormData,
 		private index: TimelineIndex,
 		private app: App,
+		private ctx: MarkdownPostProcessorContext,
 		private plugin: TimelinePlugin,
 	) {
 		super(containerEl);
@@ -21,11 +22,6 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 
 	onload() {
 		this.render();
-
-		// Note: the plugin's own index-maintenance listeners (registered in
-		// main.ts's onload) run before these, since they were registered
-		// first — so by the time these fire, `this.index` already reflects
-		// the update.
 
 		this.registerEvent(
 			this.app.metadataCache.on("changed", (file) => {
@@ -76,6 +72,18 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 		this.lastKnownPaths = new Set(entries.map((e) => e.path));
 
 		const wrapper = this.containerEl.createDiv({ cls: "timeline-render" });
+
+		const editIcon = wrapper.createDiv({
+			cls: "embed-action edit-block-button timeline-edit-icon",
+			attr: {"aria-label": "Edit this timeline"},
+		});
+		setIcon(editIcon, "pencil");
+
+		this.registerDomEvent(editIcon, "click", (evt) => {
+			evt.preventDefault();
+			evt.stopPropagation(); // don't let the click fall through to Live Preview's own cursor placement
+			this.handleEditClick();
+		});
 
 		if (entries.length === 0) {
 			wrapper.setText(`No entries found for timeline "${this.config.id}".`);
@@ -160,6 +168,17 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 			wrapper.appendChild(newCard.parent);
 		}
 	}
+
+	private handleEditClick() {
+		const file = this.plugin.app.vault.getAbstractFileByPath(this.ctx.sourcePath);
+		if (!(file instanceof TFile)) return;
+
+		const sectionInfo = this.ctx.getSectionInfo(this.containerEl);
+		if (!sectionInfo) return; // block no longer resolvable (e.g. file changed drastically)
+
+		const cursorPos: EditorPosition = { line: sectionInfo.lineStart, ch: 0 };
+		this.plugin.openAddRendererModal(file, this.config, cursorPos);
+	}
 }
 
 class TimelineEntryCard {
@@ -170,7 +189,7 @@ class TimelineEntryCard {
 	pictureEl: HTMLDivElement;
 
 
-	// TODO Add grad layout
+	// TODO Add grid layout
 	constructor() {
 		this.parent = createDiv({ cls: "timeline-entry" });
 		this.firstEl = this.parent.createDiv();

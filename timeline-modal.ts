@@ -112,7 +112,7 @@ export class AddTimelineRendererModal extends Modal {
         app: App,
         private index: TimelineIndex,
         timelineConfig: TimelineRendererFormData | null,
-        private onSubmit: (data: TimelineRendererFormData) => void
+        private onSubmit: (data: TimelineRendererFormData, editMode: boolean) => void
     ) {
         super(app);
         if (timelineConfig == null) {
@@ -153,8 +153,8 @@ export class AddTimelineRendererModal extends Modal {
             .setDesc("Which timeline to render on this page?")
             .addDropdown((dropdown) => {
                 this.idComponent = dropdown;
-                this.data.id = existingIds[0];
-                dropdown.addOptions(idsOptions).onChange((value) => {
+                this.data.id = this.data.id === "" ? existingIds[0] : this.data.id;
+                dropdown.addOptions(idsOptions).setValue(this.data.id).onChange((value) => {
                     this.data.id = value.trim();
                 });
             }).setDisabled(disableModal);
@@ -227,7 +227,7 @@ export class AddTimelineRendererModal extends Modal {
                         new Notice("Timeline ID is required.");
                         return;
                     }
-                    this.onSubmit(this.data);
+                    this.onSubmit(this.data, this.editMode);
                     this.close();
                 });
         }).setDisabled(disableModal);

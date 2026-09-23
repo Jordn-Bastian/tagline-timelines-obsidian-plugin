@@ -73,7 +73,7 @@ export default class TimelinePlugin extends Plugin {
             if (!configData.applyConfig(timelineConfig))
                 return
 
-            const child = new TimelineRenderChild(el, configData, this.index, this.app, this);
+            const child = new TimelineRenderChild(el, configData, this.index, this.app, ctx, this);
             ctx.addChild(child);
         });
 
@@ -107,7 +107,7 @@ export default class TimelinePlugin extends Plugin {
             },
         });
 
-        this.addCommand({
+        /*this.addCommand({
             id: "edit-timeline-renderer",
             name: "Edit timeline renderer in current note",
             checkCallback: (checking) => {
@@ -122,7 +122,7 @@ export default class TimelinePlugin extends Plugin {
                 }
                 return true;
             },
-        });
+        });*/
 
         this.addCommand({
             id: "force-rebuild-timeline",
@@ -184,14 +184,14 @@ export default class TimelinePlugin extends Plugin {
         ).open();
     }
 
-    private openAddRendererModal(file: TFile, timelineConfig: TimelineRendererFormData | null = null, cursorPos: EditorPosition | null = null): void {
+    public openAddRendererModal(file: TFile, timelineConfig: TimelineRendererFormData | null = null, cursorPos: EditorPosition | null = null): void {
         new AddTimelineRendererModal(
             this.app,
             this.index,
             timelineConfig,
-            async (data: TimelineRendererFormData) => {
+            async (data: TimelineRendererFormData, editMode:boolean) => {
 
-                await this.upsertTimelineCodeBlock(this.app, file, data, cursorPos);
+                await this.upsertTimelineCodeBlock(this.app, file, data, editMode, cursorPos);
                 // //await this.ensureEditingMode(view);
                 // const editor = view.editor;
                 // //editor.setCursor(0);
@@ -271,10 +271,11 @@ export default class TimelinePlugin extends Plugin {
 
     }
 
-    async upsertTimelineCodeBlock(app: App, file: TFile, data: TimelineRendererFormData, cursorPos: EditorPosition | null = null ): Promise<void> {
+    async upsertTimelineCodeBlock(app: App, file: TFile, data: TimelineRendererFormData, editMode: boolean, cursorPos: EditorPosition | null = null ): Promise<void> {
 
         const cache = app.metadataCache.getFileCache(file);
-        const timelineBlockSection = this.getExistingTimelineCodeBlockSection(file, cache);
+        // if data is not null, we are updating an existing else we add a new by forcing null
+        const timelineBlockSection = editMode ? this.getExistingTimelineCodeBlockSection(file, cache) : null;
 
         const timelineCodeBlock = this.buildTimelineCodeBlock(data).split("\n");
 
@@ -285,13 +286,14 @@ export default class TimelinePlugin extends Plugin {
             let after: string[];
 
             if (timelineBlockSection != null) {
+                console.log ("not null")
                 before = lines.slice(0, timelineBlockSection.start);
                 after = lines.slice(timelineBlockSection.end + 1);
             } else {
                 let insertAt = 0;
 
                 if(cursorPos != null) {
-                    insertAt = cursorPos.line;
+                    insertAt = cursorPos.line + 1;
                 } else if (cache?.frontmatterPosition){
                     insertAt = cache.frontmatterPosition.end.line + 1;
                 }
@@ -301,7 +303,10 @@ export default class TimelinePlugin extends Plugin {
                 before = [...lines.slice(0, insertAt), ...(needsLeadingBlank ? [""] : [])];
                 after = ["", ...lines.slice(insertAt)];
             }
-            return [...before, ...timelineCodeBlock, ...after].join("\n")
+
+            console.log([...before, ...timelineCodeBlock, ...after].join("\n"))
+
+            return [...before, ...timelineCodeBlock, ...after].join("\n");
         });
     }
 
