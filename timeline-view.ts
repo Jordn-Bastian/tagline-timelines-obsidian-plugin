@@ -51,7 +51,6 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 			this.plugin.events.on("rebuild-timeline", (timelineID: string) => {
 				if (timelineID != this.config.id )
 					return;
-				console.log("rebuilding: ", timelineID);
 				this.render();
 			})
 		));

@@ -8,6 +8,7 @@ export class TimelineRendererFormData {
     showDescription: boolean;
     showPicture: boolean;
     layout: string;
+    rendererID: string;
 
     constructor() {
         this.id = "";
@@ -17,6 +18,7 @@ export class TimelineRendererFormData {
         this.showDescription = true;
         this.showPicture = true;
         this.layout = TIMELINE_CARD_LAYOUTS["Title-First"];
+        this.rendererID = generateShortId();
     }
 
     applyConfig(source: Record<string, string | boolean>) {
@@ -36,6 +38,10 @@ export class TimelineRendererFormData {
         return typeof this.id === "string" && this.id.length > 0;
     }
 
+}
+
+export function generateShortId(): string {
+    return Math.random().toString(36).slice(2, 10); // e.g. "k3j9f2la"
 }
 
 export class TimelineEntry {

@@ -9,7 +9,7 @@ import {
     View,
     getIcon,
     MetadataCache,
-    CachedMetadata, EditorPosition
+    CachedMetadata, EditorPosition, SectionCache
 } from "obsidian";
 import {TimelineIndex} from "./timeline-index";
 import {TimelineRenderChild} from "./timeline-view";
@@ -184,7 +184,7 @@ export default class TimelinePlugin extends Plugin {
         ).open();
     }
 
-    public openAddRendererModal(file: TFile, timelineConfig: TimelineRendererFormData | null = null, cursorPos: EditorPosition | null = null): void {
+    public openAddRendererModal(file: TFile, timelineConfig: TimelineRendererFormData | null = null, cursorPos: EditorPosition | null = null,): void {
         new AddTimelineRendererModal(
             this.app,
             this.index,
@@ -230,6 +230,68 @@ export default class TimelinePlugin extends Plugin {
         return null;
     }
 
+    private getAllTimelineCodeBlockSections(file: TFile, cache: CachedMetadata | null): SectionCache[] {
+
+        let sections: SectionCache[] = [];
+
+        if (file.extension !== "md" || cache === null) {
+            return sections;
+        }
+
+        if (!cache?.sections)
+            return sections;
+
+        for (const section of cache.sections) {
+            if (section.type !== "code")
+                continue;
+
+            sections.push(section);
+        }
+
+        return sections;
+    }
+
+    private findMatchingTimelineCodeBlock(rendererID: string, sections: SectionCache[], editor: Editor) {
+
+        for (const section of sections) {
+            const firstLine = editor.getLine(section.position.start.line).trim();
+
+            if (firstLine.startsWith("render-timeline", 3)) {
+                // convert this section to yaml
+
+                const start = section.position.start.line + 1;
+                const end = section.position.end.line - 1;
+
+                if (end <= start)
+                    continue;
+
+                let lines: string[] = [];
+
+                for (let i = start; i <= end; i++) {
+                    lines.push(editor.getLine(i));
+                }
+                let joined = lines.join("\n").trim();
+
+                if (joined.length === 0)
+                    continue;
+
+                let parsed = parseYaml(joined);
+
+                if (parsed?.rendererID === rendererID) {
+                    return section;
+                }
+
+            }
+        }
+
+        return null;
+    }
+
+    private getMatchingTimelineCodeBlock (rendererID: string, file: TFile, cache: CachedMetadata | null, editor: Editor) {
+        const allTimelineCodeBlocks = this.getAllTimelineCodeBlockSections(file, cache);
+        return this.findMatchingTimelineCodeBlock(rendererID, allTimelineCodeBlocks, editor);
+    }
+
     private getExistingTimelineCodeBlockAsData(app: App, file: TFile, editor: Editor) {
         const cache = app.metadataCache.getFileCache(file);
         const timelineBlockSection = this.getExistingTimelineCodeBlockSection(file, cache);
@@ -271,11 +333,19 @@ export default class TimelinePlugin extends Plugin {
 
     }
 
-    async upsertTimelineCodeBlock(app: App, file: TFile, data: TimelineRendererFormData, editMode: boolean, cursorPos: EditorPosition | null = null ): Promise<void> {
+    async upsertTimelineCodeBlock(app: App, file: TFile, data: TimelineRendererFormData, editMode: boolean, cursorPos: EditorPosition | null = null): Promise<void> {
+
+        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+
+        if (!view)
+            return;
+
+        if(!view.editor)
+            return;
 
         const cache = app.metadataCache.getFileCache(file);
         // if data is not null, we are updating an existing else we add a new by forcing null
-        const timelineBlockSection = editMode ? this.getExistingTimelineCodeBlockSection(file, cache) : null;
+        const timelineBlockSection = editMode ? this.getMatchingTimelineCodeBlock(data.rendererID, file, cache, view.editor) : null;
 
         const timelineCodeBlock = this.buildTimelineCodeBlock(data).split("\n");
 
@@ -286,9 +356,8 @@ export default class TimelinePlugin extends Plugin {
             let after: string[];
 
             if (timelineBlockSection != null) {
-                console.log ("not null")
-                before = lines.slice(0, timelineBlockSection.start);
-                after = lines.slice(timelineBlockSection.end + 1);
+                before = lines.slice(0, timelineBlockSection.position.start.line);
+                after = lines.slice(timelineBlockSection.position.end.line + 1);
             } else {
                 let insertAt = 0;
 
@@ -304,8 +373,6 @@ export default class TimelinePlugin extends Plugin {
                 after = ["", ...lines.slice(insertAt)];
             }
 
-            console.log([...before, ...timelineCodeBlock, ...after].join("\n"))
-
             return [...before, ...timelineCodeBlock, ...after].join("\n");
         });
     }
@@ -318,6 +385,7 @@ export default class TimelinePlugin extends Plugin {
             "showDate: " + data.showDate + "\n" +
             "showDescription: " + data.showDescription + "\n" +
             "showPicture: " + data.showPicture + "\n" +
+            "rendererID: " + data.rendererID + "\n" +
             "```";
     }
 
