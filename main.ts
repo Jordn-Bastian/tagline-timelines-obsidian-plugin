@@ -21,6 +21,7 @@ export default class TimelinePlugin extends Plugin {
     index!: TimelineIndex;
     settings!: TimelinePluginSettings;
     events = new Events();
+    hasInitialized = false;
 
     async onload() {
         await this.loadSettings();
@@ -28,11 +29,23 @@ export default class TimelinePlugin extends Plugin {
         this.index = new TimelineIndex(this.app);
 
         // Build the index once the vault's initial metadata resolution is done.
-        this.registerEvent(
-            this.app.metadataCache.on("resolved", () => {
+        // TODO STOP THIS FROM RUNNING ALL THE TIME!
+        // TODO check when we are getting all entries on load,
+        // look into storing this somehow in the note so we don't have to store it in memeory?
+        // Think maybe we need to run this on the vault load
+
+        this.app.workspace.onLayoutReady(() => {
+            if (!this.hasInitialized) {
                 this.index.buildInitialIndex();
-            })
-        );
+                this.hasInitialized = true;
+            }
+        });
+
+        // this.registerEvent(
+        //     this.app.metadataCache.on("resolved", () => {
+        //         this.index.buildInitialIndex();
+        //     })
+        // );
 
         this.registerEvent(
             this.app.metadataCache.on("changed", (file, _data, cache) => {
@@ -264,7 +277,7 @@ export default class TimelinePlugin extends Plugin {
         const cache = app.metadataCache.getFileCache(file);
         const timelineBlockSection = this.getExistingTimelineCodeBlockSection(file, cache);
 
-        const timelineCodeBlock = this.buildTimelineCodeBlock(data);
+        const timelineCodeBlock = this.buildTimelineCodeBlock(data).split("\n");
 
         await app.vault.process(file, (content) => {
             const lines = content.split("\n");
@@ -274,7 +287,7 @@ export default class TimelinePlugin extends Plugin {
 
             if (timelineBlockSection != null) {
                 before = lines.slice(0, timelineBlockSection.start);
-                after = lines.slice(timelineBlockSection.end +1);
+                after = lines.slice(timelineBlockSection.end + 1);
             } else {
                 const insertAt = cache?.frontmatterPosition ? cache.frontmatterPosition.end.line + 1 : 0;
                 const needsLeadingBlank = insertAt > 0 && lines[insertAt - 1]?.trim() !== "";
@@ -282,8 +295,9 @@ export default class TimelinePlugin extends Plugin {
                 before = [...lines.slice(0, insertAt), ...(needsLeadingBlank ? [""] : [])];
                 after = ["", ...lines.slice(insertAt)];
             }
-
-            return before + "\n" + timelineCodeBlock + "\n" + after;
+            console.log(after);
+            //return before + "\n" + timelineCodeBlock + "\n" + after;
+            return [...before, ...timelineCodeBlock, ...after].join("\n")
         });
     }
 

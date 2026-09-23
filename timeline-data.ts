@@ -1,3 +1,5 @@
+import {FrontMatterCache, TFile} from "obsidian";
+
 export class TimelineRendererFormData {
     id: string;
     sortDescending: boolean;
@@ -36,13 +38,51 @@ export class TimelineRendererFormData {
 
 }
 
-export interface TimelineEntry {
+export class TimelineEntry {
     id: string;
     path: string;
     date: string; // ISO-ish string, e.g. "2024-01-15"
     title: string;
     description: string;
     picturePath: string;
+
+    constructor(data: {
+        id: string,
+        path: string,
+        date: string,
+        title: string,
+        description: string,
+        picturePath: string
+    }) {
+        this.id = data.id;
+        this.path = data.path;
+        this.date = data.date;
+        this.title = data.title;
+        this.description = data.description;
+        this.picturePath = data.picturePath;
+    }
+
+    static constructFromFrontMatter(fm: FrontMatterCache, file:TFile) {
+        const data = {
+            id: fm["timeline-id"],
+            path: file.path,
+            date: String(fm?.["timeline-date"] ?? ""),
+            title: fm?.["timeline-title"] ?? file.basename,
+            description: fm?.["timeline-description"] ?? "",
+            picturePath: fm?.["timeline-picture-path"] ?? ""
+        };
+
+        return new TimelineEntry(data);
+    }
+
+    compare(other: TimelineEntry) {
+        return other.id === this.id
+            && other.path === this.path
+            && other.date === this.date
+            && other.title === this.title
+            && other.description === this.description
+            && other.picturePath === this.picturePath;
+    }
 }
 
 export const TIMELINE_CARD_LAYOUTS = {

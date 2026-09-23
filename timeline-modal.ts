@@ -17,7 +17,7 @@ export class AddTimelineEntryModal extends Modal {
     ) {
         super(app);
         // Pre-fill sensible defaults: title from the note's filename.
-        this.data = {id: "", path: "", date: "", title: file.basename, description: "", picturePath: ""};
+        this.data = new TimelineEntry({id: "", path: "", date: "", title: file.basename, description: "", picturePath: ""}) ;
     }
 
     onOpen() {

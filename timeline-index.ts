@@ -16,7 +16,16 @@ export class TimelineIndex {
 
 	/** Called on metadataCache 'changed'. */
 	handleFileChanged(file: TFile, cache: CachedMetadata | null): void {
-		this.upsertFromCache(file, cache);
+		const fm = cache?.frontmatter ? cache.frontmatter : this.getFrontMatter(file);
+		const id = fm?.["timeline-id"] as string | undefined;
+		if (id !== undefined && fm !== undefined) {
+
+			const newEntry = TimelineEntry.constructFromFrontMatter(fm, file);
+
+			if (this.timelineEntryHasUpdated(newEntry)) {
+				this.upsertFromCache(file, cache);
+			}
+		}
 	}
 
 	/** Called on vault 'delete'. */
@@ -57,6 +66,22 @@ export class TimelineIndex {
 
 	// --- internals ---
 
+	private timelineEntryHasUpdated(newEntry: TimelineEntry): boolean {
+		let allEntries = this.byId.get(newEntry.id);
+
+		if (allEntries !== undefined) {
+			// compare each entry to see if we already have an exact match
+			allEntries.forEach((entry) => {
+				if (entry.compare(newEntry)) {
+					return false;
+				}
+			})
+		}
+		// if all entries is undefined then there is no timeline currently store with a matching id
+		// if no match is found, then we have a new entry to add
+		return true
+	}
+
 	private upsertFromCache(file: TFile, cache: CachedMetadata | null = null): void {
 		const fm = cache?.frontmatter ? cache.frontmatter : this.getFrontMatter(file);
 		const newId = fm?.["timeline-id"] as string | undefined;
@@ -65,16 +90,11 @@ export class TimelineIndex {
 		// case where timeline-id changed or was removed entirely.
 		this.removeExisting(file.path);
 
-		if (!newId) return; // no timeline frontmatter (any more)
+		if (!newId || fm === undefined) { // no timelineID
+			return;
+		}
 
-		const entry: TimelineEntry = {
-			id: newId,
-			path: file.path,
-			date: String(fm?.["timeline-date"] ?? ""),
-			title: fm?.["timeline-title"] ?? file.basename,
-			description: fm?.["timeline-description"] ?? "",
-			picturePath: fm?.["timeline-picture-path"] ?? "",
-		};
+		const entry: TimelineEntry = TimelineEntry.constructFromFrontMatter(fm, file);
 
 		let list = this.byId.get(newId) ?? [];
 		list.push(entry);
