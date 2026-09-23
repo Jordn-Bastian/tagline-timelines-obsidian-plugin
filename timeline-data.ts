@@ -1,4 +1,4 @@
-import {FrontMatterCache, TFile} from "obsidian";
+import {AbstractInputSuggest, App, FrontMatterCache, TFile} from "obsidian";
 
 export class TimelineRendererFormData {
     id: string;
@@ -96,3 +96,33 @@ export const TIMELINE_CARD_LAYOUTS = {
     "Title-First" : "Title-First",
     "Date-First" : "Date-First"
 };
+
+export const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "bmp", "svg", "webp"];
+
+export class ImagePathSuggestions extends AbstractInputSuggest<TFile> {
+    constructor(
+        app: App,
+        private inputEl: HTMLInputElement,
+        private onPick: (value: TFile) => void,
+    ) {
+        super(app, inputEl);
+        this.onSelect((file, evt) => {
+            this.inputEl.value = file.path;
+            this.inputEl.trigger("input");
+            this.onPick(file);
+            this.close();
+        });
+    }
+
+    protected getSuggestions(query: string): TFile[] {
+        const q = query.toLowerCase();
+        return this.app.vault
+            .getFiles()
+            .filter((f) => IMAGE_EXTENSIONS.includes(f.extension.toLowerCase()))
+            .filter((f) => f.path.toLowerCase().includes(q));
+    }
+
+    renderSuggestion(file: TFile, el: HTMLElement) {
+        el.setText(file.path);
+    }
+}

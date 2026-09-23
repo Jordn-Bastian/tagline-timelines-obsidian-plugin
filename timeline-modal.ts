@@ -1,6 +1,6 @@
 import {App, Modal, Setting, Notice, TFile, TextComponent, ToggleComponent, DropdownComponent} from "obsidian";
 import {TimelineIndex} from "./timeline-index";
-import {TimelineEntry, TimelineRendererFormData, TIMELINE_CARD_LAYOUTS} from "./timeline-data";
+import {TimelineEntry, TimelineRendererFormData, TIMELINE_CARD_LAYOUTS, ImagePathSuggestions} from "./timeline-data";
 
 export class AddTimelineEntryModal extends Modal {
     private data: TimelineEntry;
@@ -69,9 +69,16 @@ export class AddTimelineEntryModal extends Modal {
         });
 
         new Setting(contentEl).setName("Path to picture").addSearch((search) => {
+            search.setPlaceholder("Search for images in vault...");
+            search.setValue(this.data.picturePath ?? "");
+
             search.onChange((value) => {
-                this.data.picturePath = value;
+                this.data.picturePath = value.trim();
             })
+
+            new ImagePathSuggestions(this.app, search.inputEl, (file) => {
+                this.data.picturePath = file.path;
+            });
         });
 
         new Setting(contentEl).addButton((button) => {
@@ -234,3 +241,4 @@ export class AddTimelineRendererModal extends Modal {
         this.contentEl.empty();
     }
 }
+

@@ -140,6 +140,20 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 				});
 			}
 
+			if (entry.picturePath && this.config.showPicture) {
+				const src = this.resolvePictureSrc(entry.picturePath);
+				if (src) {
+					pictureEl = createEl("img", {
+						cls: "timeline-entry-picture",
+						attr: { src, alt: entry.title },
+					});
+				} else {
+					pictureEl = createEl("div", {
+						text: `Image not found: ${entry.picturePath}`,
+					});
+				}
+			}
+
 			// Order elements
 			switch (this.config.layout) {
 				case TIMELINE_CARD_LAYOUTS["Title-First"]:
@@ -177,9 +191,15 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 		const cursorPos: EditorPosition = { line: sectionInfo.lineStart, ch: 0 };
 		this.plugin.openAddRendererModal(file, this.config, cursorPos);
 	}
+
+	private resolvePictureSrc(picturePath: string): string | null {
+		const file = this.app.metadataCache.getFirstLinkpathDest(picturePath, this.ctx.sourcePath);
+		if (!(file instanceof TFile)) return null;
+		return this.app.vault.getResourcePath(file);
+	}
 }
 
-class TimelineEntryCard {
+/*class TimelineEntryCard {
 	parent: HTMLDivElement;
 	firstEl: HTMLDivElement | HTMLAnchorElement;
 	secondEl: HTMLDivElement | HTMLAnchorElement;
@@ -194,5 +214,21 @@ class TimelineEntryCard {
 		this.secondEl = this.parent.createDiv();
 		this.thirdEl = this.parent.createDiv();
 		this.pictureEl = this.parent.createDiv();
+	}
+}*/
+
+class TimelineEntryCard {
+	parent: HTMLDivElement;
+	firstEl: HTMLDivElement | HTMLAnchorElement;
+	secondEl: HTMLDivElement | HTMLAnchorElement;
+	thirdEl: HTMLDivElement;
+	pictureEl: HTMLDivElement;
+
+	constructor() {
+		this.parent = createDiv({ cls: "timeline-entry" });
+		this.firstEl = this.parent.createDiv({ cls: "timeline-entry-first" });
+		this.secondEl = this.parent.createDiv({ cls: "timeline-entry-second" });
+		this.thirdEl = this.parent.createDiv({ cls: "timeline-entry-third" });
+		this.pictureEl = this.parent.createDiv({ cls: "timeline-entry-picture-cell" });
 	}
 }

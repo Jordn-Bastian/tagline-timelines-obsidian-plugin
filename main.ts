@@ -208,25 +208,6 @@ export default class TimelinePlugin extends Plugin {
         ).open();
     }
 
-    private getExistingTimelineCodeBlockSection(file: TFile, cache: CachedMetadata | null) {
-
-        if (file.extension !== "md" || cache === null) {
-            return null;
-        }
-
-        if (!cache?.sections)
-            return null;
-
-        for (const section of cache.sections) {
-            if (section.type !== "code")
-                continue;
-
-            return {start: section.position.start.line, end: section.position.end.line};
-        }
-
-        return null;
-    }
-
     private getAllTimelineCodeBlockSections(file: TFile, cache: CachedMetadata | null): SectionCache[] {
 
         let sections: SectionCache[] = [];
