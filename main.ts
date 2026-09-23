@@ -9,7 +9,7 @@ import {
     View,
     getIcon,
     MetadataCache,
-    CachedMetadata
+    CachedMetadata, EditorPosition
 } from "obsidian";
 import {TimelineIndex} from "./timeline-index";
 import {TimelineRenderChild} from "./timeline-view";
@@ -96,13 +96,12 @@ export default class TimelinePlugin extends Plugin {
             id: "add-timeline-renderer",
             name: "Add timeline renderer to current note",
             checkCallback: (checking) => {
-                const file = this.app.workspace.getActiveFile();
-                if (!(file instanceof TFile) || file.extension !== "md") {
+                const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                if (!view || view.file?.extension !== "md")
                     return false;
-                }
 
                 if (!checking) {
-                    this.openAddRendererModal(file);
+                    this.openAddRendererModal(view.file, null, view.editor.getCursor());
                 }
                 return true;
             },
@@ -119,7 +118,7 @@ export default class TimelinePlugin extends Plugin {
                 if (!checking) {
                     // Check if the timeline renderer code block is present
                     let timelineConfig = this.getExistingTimelineCodeBlockAsData(this.app, view.file, view.editor);
-                    this.openAddRendererModal(view.file, timelineConfig);
+                    this.openAddRendererModal(view.file, timelineConfig, view.editor.getCursor());
                 }
                 return true;
             },
@@ -185,14 +184,14 @@ export default class TimelinePlugin extends Plugin {
         ).open();
     }
 
-    private openAddRendererModal(file: TFile, timelineConfig: TimelineRendererFormData | null = null) {
+    private openAddRendererModal(file: TFile, timelineConfig: TimelineRendererFormData | null = null, cursorPos: EditorPosition | null = null): void {
         new AddTimelineRendererModal(
             this.app,
             this.index,
             timelineConfig,
             async (data: TimelineRendererFormData) => {
 
-                await this.upsertTimelineCodeBlock(this.app, file, data);
+                await this.upsertTimelineCodeBlock(this.app, file, data, cursorPos);
                 // //await this.ensureEditingMode(view);
                 // const editor = view.editor;
                 // //editor.setCursor(0);
@@ -272,7 +271,7 @@ export default class TimelinePlugin extends Plugin {
 
     }
 
-    async upsertTimelineCodeBlock(app: App, file: TFile, data: TimelineRendererFormData) {
+    async upsertTimelineCodeBlock(app: App, file: TFile, data: TimelineRendererFormData, cursorPos: EditorPosition | null = null ): Promise<void> {
 
         const cache = app.metadataCache.getFileCache(file);
         const timelineBlockSection = this.getExistingTimelineCodeBlockSection(file, cache);
@@ -289,14 +288,19 @@ export default class TimelinePlugin extends Plugin {
                 before = lines.slice(0, timelineBlockSection.start);
                 after = lines.slice(timelineBlockSection.end + 1);
             } else {
-                const insertAt = cache?.frontmatterPosition ? cache.frontmatterPosition.end.line + 1 : 0;
+                let insertAt = 0;
+
+                if(cursorPos != null) {
+                    insertAt = cursorPos.line;
+                } else if (cache?.frontmatterPosition){
+                    insertAt = cache.frontmatterPosition.end.line + 1;
+                }
+
                 const needsLeadingBlank = insertAt > 0 && lines[insertAt - 1]?.trim() !== "";
 
                 before = [...lines.slice(0, insertAt), ...(needsLeadingBlank ? [""] : [])];
                 after = ["", ...lines.slice(insertAt)];
             }
-            console.log(after);
-            //return before + "\n" + timelineCodeBlock + "\n" + after;
             return [...before, ...timelineCodeBlock, ...after].join("\n")
         });
     }
