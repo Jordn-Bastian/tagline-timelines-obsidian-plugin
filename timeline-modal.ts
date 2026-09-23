@@ -1,4 +1,14 @@
-import {App, Modal, Setting, Notice, TFile, TextComponent, ToggleComponent, DropdownComponent} from "obsidian";
+import {
+    App,
+    Modal,
+    Setting,
+    Notice,
+    TFile,
+    TextComponent,
+    ToggleComponent,
+    DropdownComponent,
+    ColorComponent
+} from "obsidian";
 import {TimelineIndex} from "./timeline-index";
 import {TimelineEntry, TimelineRendererFormData, TIMELINE_CARD_LAYOUTS, ImagePathSuggestions} from "./timeline-data";
 
@@ -111,6 +121,7 @@ export class AddTimelineRendererModal extends Modal {
     private showDatesComponent!: ToggleComponent;
     private showDescriptionComponent!: ToggleComponent;
     private showPictureComponent!: ToggleComponent;
+    private colorPickerComponent!: ColorComponent;
 
     constructor(
         app: App,
@@ -220,6 +231,16 @@ export class AddTimelineRendererModal extends Modal {
                 toggle.setValue(this.data.showPicture).onChange((value) => {
                     this.data.showPicture = value;
                 });
+            }).setDisabled(disableModal);
+
+        new Setting(contentEl)
+            .setName("Custom accent color")
+            .setDesc('Uses Obsidian accent color by default')
+            .addColorPicker((colorPicker) => {
+                this.colorPickerComponent = colorPicker;
+                colorPicker.setValue(this.data.accentColour).onChange((value) => {
+                    this.data.accentColour = value;
+                })
             }).setDisabled(disableModal);
 
         new Setting(contentEl).addButton((button) => {

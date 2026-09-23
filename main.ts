@@ -323,6 +323,7 @@ export default class TimelinePlugin extends Plugin {
             "showDescription: " + data.showDescription + "\n" +
             "showPicture: " + data.showPicture + "\n" +
             "rendererID: " + data.rendererID + "\n" +
+            "accentColour: " + data.accentColour + "\n" +
             "```";
     }
 

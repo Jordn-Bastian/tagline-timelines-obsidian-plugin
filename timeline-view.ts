@@ -70,6 +70,9 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 		this.lastKnownPaths = new Set(entries.map((e) => e.path));
 
 		const wrapper = this.containerEl.createDiv({ cls: "timeline-render" });
+		if (this.config.accentColour !== wrapper.style.borderLeftColor) {
+			wrapper.style.borderLeftColor = this.config.accentColour;
+		}
 
 		const editIcon = wrapper.createDiv({
 			cls: "embed-action edit-block-button timeline-edit-icon",

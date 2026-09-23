@@ -9,6 +9,7 @@ export class TimelineRendererFormData {
     showPicture: boolean;
     layout: string;
     rendererID: string;
+    accentColour: string;
 
     constructor() {
         this.id = "";
@@ -19,6 +20,7 @@ export class TimelineRendererFormData {
         this.showPicture = true;
         this.layout = TIMELINE_CARD_LAYOUTS["Title-First"];
         this.rendererID = generateShortId();
+        this.accentColour = getAccentColor();
     }
 
     applyConfig(source: Record<string, string | boolean>) {
@@ -125,4 +127,8 @@ export class ImagePathSuggestions extends AbstractInputSuggest<TFile> {
     renderSuggestion(file: TFile, el: HTMLElement) {
         el.setText(file.path);
     }
+}
+
+export function getAccentColor(): string {
+    return getComputedStyle(document.body).getPropertyValue("--interactive-accent").trim();
 }
