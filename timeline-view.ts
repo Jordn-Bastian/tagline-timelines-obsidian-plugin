@@ -1,7 +1,6 @@
 import {App, MarkdownRenderChild, MarkdownPostProcessorContext, moment, setIcon, EditorPosition, TFile} from "obsidian";
 import { TimelineIndex } from "./timeline-index";
 import TimelinePlugin from "./main";
-import { DATE_FORMATS } from './settings';
 import {TimelineRendererFormData, TIMELINE_CARD_LAYOUTS} from "./timeline-data";
 
 export class TimelineRenderChild extends MarkdownRenderChild {

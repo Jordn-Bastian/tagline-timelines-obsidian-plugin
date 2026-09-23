@@ -6,9 +6,6 @@ import {
     parseYaml,
     App,
     MarkdownView,
-    View,
-    getIcon,
-    MetadataCache,
     CachedMetadata, EditorPosition, SectionCache
 } from "obsidian";
 import {TimelineIndex} from "./timeline-index";
@@ -290,47 +287,6 @@ export default class TimelinePlugin extends Plugin {
     private getMatchingTimelineCodeBlock (rendererID: string, file: TFile, cache: CachedMetadata | null, editor: Editor) {
         const allTimelineCodeBlocks = this.getAllTimelineCodeBlockSections(file, cache);
         return this.findMatchingTimelineCodeBlock(rendererID, allTimelineCodeBlocks, editor);
-    }
-
-    private getExistingTimelineCodeBlockAsData(app: App, file: TFile, editor: Editor) {
-        const cache = app.metadataCache.getFileCache(file);
-        const timelineBlockSection = this.getExistingTimelineCodeBlockSection(file, cache);
-
-        if (timelineBlockSection == null) {
-            return null
-        }
-
-        const firstLine = editor.getLine(timelineBlockSection.start).trim();
-
-        if (firstLine.startsWith("render-timeline", 3)) {
-            // convert this section to yaml
-
-            const start = timelineBlockSection.start + 1;
-            const end = timelineBlockSection.end - 1;
-
-            if (end <= start)
-                return null;
-
-            let lines: string[] = [];
-
-            for (let i = start; i <= end; i++) {
-                lines.push(editor.getLine(i));
-            }
-
-            let joined = lines.join("\n").trim();
-
-            if (joined.length === 0)
-                return null;
-
-            let parsed = parseYaml(joined);
-
-            let configData = new TimelineRendererFormData();
-
-            return configData.applyConfig(parsed) ? configData : null;
-        }
-
-        return null;
-
     }
 
     async upsertTimelineCodeBlock(app: App, file: TFile, data: TimelineRendererFormData, editMode: boolean, cursorPos: EditorPosition | null = null): Promise<void> {

@@ -1,9 +1,6 @@
 import {App, Modal, Setting, Notice, TFile, TextComponent, ToggleComponent, DropdownComponent} from "obsidian";
 import {TimelineIndex} from "./timeline-index";
 import {TimelineEntry, TimelineRendererFormData, TIMELINE_CARD_LAYOUTS} from "./timeline-data";
-import {DATE_FORMATS, TimelinePluginSettings} from "./settings";
-import {Drop} from "esbuild";
-import {text} from "node:stream/consumers";
 
 export class AddTimelineEntryModal extends Modal {
     private data: TimelineEntry;
