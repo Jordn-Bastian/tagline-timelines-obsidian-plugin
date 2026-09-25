@@ -104,7 +104,7 @@ export default class TimelinePlugin extends Plugin {
                     return false;
                 }
                 if (!checking) {
-                    this.openAddEntryModal(file, true);
+                    this.openAddEntryModal(file);
                 }
                 return true;
             },
@@ -182,12 +182,11 @@ export default class TimelinePlugin extends Plugin {
         this.events.trigger("settings-updated");
     }
 
-    private openAddEntryModal(file: TFile, editMode: boolean = false) {
+    private openAddEntryModal(file: TFile) {
         new AddTimelineEntryModal(
             this.app,
             this.index,
             file,
-            editMode,
             async (data: TimelineEntry) => {
                 await this.app.fileManager.processFrontMatter(file, (fm) => {
                     fm[TIMELINE_ENTRY_KEYS.id] = data.id;

@@ -10,17 +10,23 @@ import {
     ColorComponent
 } from "obsidian";
 import {TimelineIndex} from "./timeline-index";
-import {TimelineEntry, TimelineRendererFormData, TIMELINE_CARD_LAYOUTS, ImagePathSuggestions} from "./timeline-data";
+import {
+    TimelineEntry,
+    TimelineRendererFormData,
+    TIMELINE_CARD_LAYOUTS,
+    ImagePathSuggestions,
+    TIMELINE_ENTRY_KEYS
+} from "./timeline-data";
 
 export class AddTimelineEntryModal extends Modal {
     private data: TimelineEntry;
     private idTextComponent!: TextComponent;
+    private editMode: boolean = false;
 
     constructor(
         app: App,
         private index: TimelineIndex,
         private file: TFile,
-        private editMode: boolean,
         private onSubmit: (data: TimelineEntry) => void
     ) {
         super(app);
@@ -28,20 +34,20 @@ export class AddTimelineEntryModal extends Modal {
 
         this.data = new TimelineEntry({id: "", path: "", date: "", title: file.basename, description: "", picturePath: ""}) ;
 
-        if (editMode) {
-            const cache = this.app.metadataCache.getFileCache(file);
-            const fm = cache?.frontmatter;
+        const cache = this.app.metadataCache.getFileCache(file);
+        const fm = cache?.frontmatter;
 
-            if (fm) {
-                this.data = TimelineEntry.constructFromFrontMatter(fm, file);
-            }
-
+        if (fm?.[TIMELINE_ENTRY_KEYS.id]) {
+            this.data = TimelineEntry.constructFromFrontMatter(fm, file);
+            this.editMode = true;
         }
     }
 
     onOpen() {
         const {contentEl} = this;
-        contentEl.createEl("h2", {text: "Add timeline entry"});
+        let title = this.editMode ? "Edit timeline entry" : "Add timeline entry";
+
+        contentEl.createEl("h2", {text: title});
 
         const existingIds = this.index.getAllTimelineIds();
 
@@ -109,7 +115,7 @@ export class AddTimelineEntryModal extends Modal {
 
         new Setting(contentEl).addButton((button) => {
             button
-                .setButtonText("Add entry")
+                .setButtonText("Done")
                 .setCta()
                 .onClick(() => {
                     if (!this.data.id || !this.data.date || !this.data.title) {
