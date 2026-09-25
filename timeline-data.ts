@@ -1,5 +1,18 @@
 import {AbstractInputSuggest, App, FrontMatterCache, TFile} from "obsidian";
 
+export const TIMELINE_ENTRY_KEYS = {
+    id: "timeline-id",
+    date: "timeline-date",
+    title: "timeline-title",
+    description: "timeline-description",
+    picture_path: "timeline-picture-path",
+}
+
+export const TIMELINE_CODEBLOCK_KEYS = {
+    block_title: "render-timeline",
+}
+
+
 export class TimelineRendererFormData {
     id: string;
     sortDescending: boolean;
@@ -32,8 +45,9 @@ export class TimelineRendererFormData {
                 if (key === "id" && (typeof value !== "string" || value.length === 0)) {
                     return false;
                 }
-
-                this[key] = value as this[typeof key];
+                if (value !== null) {
+                    this[key] = value as this[typeof key];
+                }
             }
         }
 
@@ -72,12 +86,12 @@ export class TimelineEntry {
 
     static constructFromFrontMatter(fm: FrontMatterCache, file:TFile) {
         const data = {
-            id: fm["timeline-id"],
+            id: fm[TIMELINE_ENTRY_KEYS.id],
             path: file.path,
-            date: String(fm?.["timeline-date"] ?? ""),
-            title: fm?.["timeline-title"] ?? file.basename,
-            description: fm?.["timeline-description"] ?? "",
-            picturePath: fm?.["timeline-picture-path"] ?? ""
+            date: String(fm?.[TIMELINE_ENTRY_KEYS.date] ?? ""),
+            title: fm?.[TIMELINE_ENTRY_KEYS.title] ?? file.basename,
+            description: fm?.[TIMELINE_ENTRY_KEYS.description] ?? "",
+            picturePath: fm?.[TIMELINE_ENTRY_KEYS.picture_path] ?? ""
         };
 
         return new TimelineEntry(data);
@@ -130,5 +144,6 @@ export class ImagePathSuggestions extends AbstractInputSuggest<TFile> {
 }
 
 export function getAccentColor(): string {
-    return getComputedStyle(document.body).getPropertyValue("--interactive-accent").trim();
+    return  getComputedStyle(document.body).getPropertyValue("--interactive-accent").trim();
 }
+

@@ -1,5 +1,5 @@
 .timeline-render {
-	border-left: 2px solid var(--interactive-accent);
+	border-left: 2px solid var(--timeline-accent, var(--interactive-accent));
 	margin: 1em 0;
 	padding-left: 1em;
 }
@@ -62,7 +62,7 @@
 	width: 0.6em;
 	height: 0.6em;
 	border-radius: 50%;
-	background: var(--interactive-accent);
+	background: var(--timeline-accent, var(--interactive-accent));
 }
 
 .timeline-entry-date {

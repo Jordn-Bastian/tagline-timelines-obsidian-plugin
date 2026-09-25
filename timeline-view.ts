@@ -1,7 +1,7 @@
 import {App, MarkdownRenderChild, MarkdownPostProcessorContext, moment, setIcon, EditorPosition, TFile} from "obsidian";
 import { TimelineIndex } from "./timeline-index";
 import TimelinePlugin from "./main";
-import {TimelineRendererFormData, TIMELINE_CARD_LAYOUTS} from "./timeline-data";
+import {TimelineRendererFormData, TIMELINE_CARD_LAYOUTS, getAccentColor} from "./timeline-data";
 
 export class TimelineRenderChild extends MarkdownRenderChild {
 	// Paths that contributed to this timeline as of the last render.
@@ -70,8 +70,9 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 		this.lastKnownPaths = new Set(entries.map((e) => e.path));
 
 		const wrapper = this.containerEl.createDiv({ cls: "timeline-render" });
-		if (this.config.accentColour !== wrapper.style.borderLeftColor) {
-			wrapper.style.borderLeftColor = this.config.accentColour;
+
+		if (this.config.accentColour) {
+			wrapper.style.setProperty("--timeline-accent", this.config.accentColour);
 		}
 
 		const editIcon = wrapper.createDiv({

@@ -6,12 +6,18 @@ import {
     parseYaml,
     App,
     MarkdownView,
-    CachedMetadata, EditorPosition, SectionCache
+    CachedMetadata, EditorPosition, SectionCache, stringifyYaml
 } from "obsidian";
 import {TimelineIndex} from "./timeline-index";
 import {TimelineRenderChild} from "./timeline-view";
 import {AddTimelineEntryModal, AddTimelineRendererModal} from "./timeline-modal";
-import {TimelineEntry, TimelineRendererFormData} from "./timeline-data";
+import {
+    TIMELINE_CARD_LAYOUTS,
+    TIMELINE_CODEBLOCK_KEYS,
+    TIMELINE_ENTRY_KEYS,
+    TimelineEntry,
+    TimelineRendererFormData
+} from "./timeline-data";
 import {DEFAULT_SETTINGS, TimelinePluginSettings, TimelinePluginSettingsTab} from './settings';
 
 export default class TimelinePlugin extends Plugin {
@@ -62,7 +68,7 @@ export default class TimelinePlugin extends Plugin {
             })
         );
 
-        this.registerMarkdownCodeBlockProcessor("render-timeline", (source, el, ctx) => {
+        this.registerMarkdownCodeBlockProcessor(TIMELINE_CODEBLOCK_KEYS.block_title, (source, el, ctx) => {
             const timelineConfig = parseYaml(source.trim());
 
             let configData = new TimelineRendererFormData();
@@ -168,15 +174,12 @@ export default class TimelinePlugin extends Plugin {
             file,
             async (data: TimelineEntry) => {
                 await this.app.fileManager.processFrontMatter(file, (fm) => {
-                    fm["timeline-id"] = data.id;
-                    fm["timeline-date"] = data.date;
-                    fm["timeline-title"] = data.title;
-                    fm["timeline-description"] = data.description;
-                    fm["timeline-picture-path"] = data.picturePath;
+                    fm[TIMELINE_ENTRY_KEYS.id] = data.id;
+                    fm[TIMELINE_ENTRY_KEYS.date] = data.date;
+                    fm[TIMELINE_ENTRY_KEYS.title] = data.title;
+                    fm[TIMELINE_ENTRY_KEYS.description] = data.description;
+                    fm[TIMELINE_ENTRY_KEYS.picture_path] = data.picturePath;
                 });
-                // No manual index update needed here: writing frontmatter
-                // triggers vault modify -> metadataCache 'changed', which our
-                // existing handler already uses to keep the index in sync.
             }
         ).open();
     }
@@ -189,20 +192,6 @@ export default class TimelinePlugin extends Plugin {
             async (data: TimelineRendererFormData, editMode:boolean) => {
 
                 await this.upsertTimelineCodeBlock(this.app, file, data, editMode, cursorPos);
-                // //await this.ensureEditingMode(view);
-                // const editor = view.editor;
-                // //editor.setCursor(0);
-                // editor.replaceRange(
-                //     "```render-timeline\n" +
-                //     "id: " + data.id + "\n" +
-                //     "sortDescending: " + data.sortDescending + "\n" +
-                //     "link: " + data.link + "\n" +
-                //     "showDate: " + data.showDate + "\n" +
-                //     "showDescription: " + data.showDescription + "\n" +
-                //     "showPicture: " + data.showPicture + "\n" +
-                //     "```"
-                //     , editor.getCursor()
-                // );
                 this.events.trigger("rebuild-timeline", data.id);
             }
         ).open();
@@ -234,7 +223,7 @@ export default class TimelinePlugin extends Plugin {
         for (const section of sections) {
             const firstLine = editor.getLine(section.position.start.line).trim();
 
-            if (firstLine.startsWith("render-timeline", 3)) {
+            if (firstLine.startsWith(TIMELINE_CODEBLOCK_KEYS.block_title, 3)) {
                 // convert this section to yaml
 
                 const start = section.position.start.line + 1;
@@ -314,9 +303,10 @@ export default class TimelinePlugin extends Plugin {
         });
     }
 
-    private buildTimelineCodeBlock(data: TimelineRendererFormData): string {
+/*    private buildTimelineCodeBlock(data: TimelineRendererFormData): string {
         return "```render-timeline\n" +
             "id: " + data.id + "\n" +
+            "layout: " + data.layout + "\n" +
             "sortDescending: " + data.sortDescending + "\n" +
             "link: " + data.link + "\n" +
             "showDate: " + data.showDate + "\n" +
@@ -325,6 +315,10 @@ export default class TimelinePlugin extends Plugin {
             "rendererID: " + data.rendererID + "\n" +
             "accentColour: " + data.accentColour + "\n" +
             "```";
+    }*/
+
+    private buildTimelineCodeBlock(data: TimelineRendererFormData): string {
+        return "```"+TIMELINE_CODEBLOCK_KEYS.block_title+"\n" + stringifyYaml(data) + "```";
     }
 
 }
