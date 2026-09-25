@@ -1,10 +1,12 @@
 {
-	"id": "timeline-plugin",
-	"name": "Timeline",
+	"id": "tagline-timelines-plugin",
+	"name": "Tagline - Timelines",
 	"version": "0.1.0",
 	"minAppVersion": "1.4.0",
-	"description": "Render timelines built from frontmatter events declared across your vault, indexed incrementally as you edit.",
-	"author": "you",
+	"description": "Turn the notes you already have into a timeline. No lists, no manual code blocks, no hand-written YAML.",
+	"author": "Jordn bastian",
 	"authorUrl": "",
-	"isDesktopOnly": false
+	"isDesktopOnly": true,
+	"fundingURL": "https://ko-fi.com/jordnbastian",
+	"authorURL": "https://www.jordnbastian.com"
 }
