@@ -1,7 +1,7 @@
 {
 	"id": "tagline-timelines",
 	"name": "Tagline - Timelines",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"minAppVersion": "1.4.0",
 	"description": "Turn the notes you already have into a timeline. No lists, no manual code blocks, no hand-written YAML.",
 	"author": "Jordn bastian",
