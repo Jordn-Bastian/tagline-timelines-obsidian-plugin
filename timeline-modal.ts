@@ -20,11 +20,23 @@ export class AddTimelineEntryModal extends Modal {
         app: App,
         private index: TimelineIndex,
         private file: TFile,
+        private editMode: boolean,
         private onSubmit: (data: TimelineEntry) => void
     ) {
         super(app);
         // Pre-fill sensible defaults: title from the note's filename.
+
         this.data = new TimelineEntry({id: "", path: "", date: "", title: file.basename, description: "", picturePath: ""}) ;
+
+        if (editMode) {
+            const cache = this.app.metadataCache.getFileCache(file);
+            const fm = cache?.frontmatter;
+
+            if (fm) {
+                this.data = TimelineEntry.constructFromFrontMatter(fm, file);
+            }
+
+        }
     }
 
     onOpen() {
@@ -42,6 +54,10 @@ export class AddTimelineEntryModal extends Modal {
                 text.setPlaceholder("e.g. roman-history").onChange((value) => {
                     this.data.id = value.trim();
                 });
+
+                if (this.data.id) {
+                    text.setValue(this.data.id);
+                }
             })
             .addDropdown((dropdown) => {
                 dropdown.addOption("", "Pick existing…");
@@ -72,7 +88,7 @@ export class AddTimelineEntryModal extends Modal {
         });
 
         new Setting(contentEl).setName("Description").addTextArea((textarea) => {
-            textarea.onChange((value) => {
+            textarea.setValue(this.data.description).onChange((value) => {
                 this.data.description = value.trim();
             });
             textarea.inputEl.rows = 3;

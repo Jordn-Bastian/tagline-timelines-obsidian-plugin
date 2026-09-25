@@ -96,6 +96,21 @@ export default class TimelinePlugin extends Plugin {
         });
 
         this.addCommand({
+            id: "edit-timeline-entry",
+            name: "Edit timeline entry on current note",
+            checkCallback: (checking) => {
+                const file = this.app.workspace.getActiveFile();
+                if (!(file instanceof TFile) || file.extension !== "md") {
+                    return false;
+                }
+                if (!checking) {
+                    this.openAddEntryModal(file, true);
+                }
+                return true;
+            },
+        });
+
+        this.addCommand({
             id: "add-timeline-renderer",
             name: "Add timeline renderer to current note",
             checkCallback: (checking) => {
@@ -167,11 +182,12 @@ export default class TimelinePlugin extends Plugin {
         this.events.trigger("settings-updated");
     }
 
-    private openAddEntryModal(file: TFile) {
+    private openAddEntryModal(file: TFile, editMode: boolean = false) {
         new AddTimelineEntryModal(
             this.app,
             this.index,
             file,
+            editMode,
             async (data: TimelineEntry) => {
                 await this.app.fileManager.processFrontMatter(file, (fm) => {
                     fm[TIMELINE_ENTRY_KEYS.id] = data.id;
