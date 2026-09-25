@@ -66,4 +66,4 @@ Install via Community Plugins.
 
 ## License
 
-*(Add your license here.)*
+MIT No Attribution
