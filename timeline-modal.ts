@@ -29,7 +29,7 @@ export class AddTimelineEntryModal extends Modal {
         app: App,
         private index: TimelineIndex,
         private file: TFile,
-        private onSubmit: (data: TimelineEntry) => void
+        private onSubmit: (data: TimelineEntry) => void | Promise<void>
     ) {
         super(app);
         // Pre-fill sensible defaults: title from the note's filename.
@@ -151,7 +151,7 @@ export class AddTimelineRendererModal extends Modal {
         app: App,
         private index: TimelineIndex,
         timelineConfig: TimelineRendererFormData | null,
-        private onSubmit: (data: TimelineRendererFormData, editMode: boolean) => void
+        private onSubmit: (data: TimelineRendererFormData, editMode: boolean) => void | Promise<void>
     ) {
         super(app);
         if (timelineConfig == null) {

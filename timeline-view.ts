@@ -1,7 +1,7 @@
-import {App, MarkdownRenderChild, MarkdownPostProcessorContext, moment, setIcon, EditorPosition, TFile} from "obsidian";
+import {App, MarkdownRenderChild, MarkdownPostProcessorContext, setIcon, EditorPosition, TFile} from "obsidian";
 import { TimelineIndex } from "./timeline-index";
 import TimelinePlugin from "./main";
-import {TimelineRendererFormData, TIMELINE_CARD_LAYOUTS, getAccentColor} from "./timeline-data";
+import {TimelineRendererFormData, TIMELINE_CARD_LAYOUTS} from "./timeline-data";
 
 export class TimelineRenderChild extends MarkdownRenderChild {
 	// Paths that contributed to this timeline as of the last render.
@@ -116,11 +116,11 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 				// Click to open the note
 				this.registerDomEvent(titleEl, "click", (evt: MouseEvent) => {
 					evt.preventDefault();
-					this.plugin.app.workspace.openLinkText(
+					void this.plugin.app.workspace.openLinkText(
 						entry.path,
 						entry.path,
 						evt.ctrlKey || evt.metaKey // open in new tab/pane if ctrl/cmd held
-					).then(r => {});
+					);
 				});
 
 				// Hover preview

@@ -12,13 +12,12 @@ import {TimelineIndex} from "./timeline-index";
 import {TimelineRenderChild} from "./timeline-view";
 import {AddTimelineEntryModal, AddTimelineRendererModal} from "./timeline-modal";
 import {
-    TIMELINE_CARD_LAYOUTS,
     TIMELINE_CODEBLOCK_KEYS,
     TIMELINE_ENTRY_KEYS,
     TimelineEntry,
     TimelineRendererFormData
 } from "./timeline-data";
-import {DEFAULT_SETTINGS, TimelinePluginSettings, TimelinePluginSettingsTab} from './settings';
+import {DEFAULT_SETTINGS, TimelinePluginSettings} from './settings';
 
 export default class TimelinePlugin extends Plugin {
     index!: TimelineIndex;
@@ -69,7 +68,11 @@ export default class TimelinePlugin extends Plugin {
         );
 
         this.registerMarkdownCodeBlockProcessor(TIMELINE_CODEBLOCK_KEYS.block_title, (source, el, ctx) => {
-            const timelineConfig: Record<string, string | boolean> = parseYaml(source.trim());
+            const timelineConfig = parseYaml(source.trim()) as Record<string, string | boolean> | null;
+
+            if (!timelineConfig) {
+                return;
+            }
 
             let configData = new TimelineRendererFormData();
 
@@ -188,7 +191,7 @@ export default class TimelinePlugin extends Plugin {
             this.index,
             file,
             async (data: TimelineEntry) => {
-                await this.app.fileManager.processFrontMatter(file, (fm) => {
+                await this.app.fileManager.processFrontMatter(file, (fm: Record<string, string>) => {
                     fm[TIMELINE_ENTRY_KEYS.id] = data.id;
                     fm[TIMELINE_ENTRY_KEYS.date] = data.date;
                     fm[TIMELINE_ENTRY_KEYS.title] = data.title;
