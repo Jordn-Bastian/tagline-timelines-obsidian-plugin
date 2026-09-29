@@ -23,6 +23,8 @@ export class AddTimelineEntryModal extends Modal {
     private idTextComponent!: TextComponent;
     private editMode: boolean = false;
 
+    private dateTextComponent: TextComponent;
+
     constructor(
         app: App,
         private index: TimelineIndex,
@@ -78,9 +80,9 @@ export class AddTimelineEntryModal extends Modal {
             });
 
         new Setting(contentEl)
-            .setName("Date")
+            .setName("Date").setDesc("Supports multiple date formats, e.g. ISO 12/25/1997, 27BC, 12AD, 2046")
             .addText((text) => {
-                text.inputEl.type = "date";
+                this.dateTextComponent = text;
                 text.setValue(this.data.date ?? "");
                 text.onChange((value) => {
                     this.data.date = value;

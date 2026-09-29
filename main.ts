@@ -27,7 +27,7 @@ export default class TimelinePlugin extends Plugin {
     hasInitialized = false;
 
     async onload() {
-        await this.loadSettings();
+        //await this.loadSettings();
 
         this.index = new TimelineIndex(this.app);
 
@@ -165,7 +165,7 @@ export default class TimelinePlugin extends Plugin {
             },
         });
 
-        this.addSettingTab(new TimelinePluginSettingsTab(this.app, this));
+        //this.addSettingTab(new TimelinePluginSettingsTab(this.app, this));
     }
 
     async loadSettings() {

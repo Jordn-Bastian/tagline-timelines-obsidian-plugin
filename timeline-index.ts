@@ -106,9 +106,52 @@ export class TimelineIndex {
 
 	private sortTimelineEntries(list: TimelineEntry[], desc: boolean = false): TimelineEntry[] {
 		if (desc) {
-			return list.sort((a, b) =>  {return new Date(b.date).getTime() - new Date(a.date).getTime();});
+			return list.sort((a, b) =>  {return this.getSortableDate(b.date) - this.getSortableDate(a.date);});
 		}
-		return list.sort((a, b) =>  {return new Date(a.date).getTime() - new Date(b.date).getTime();});
+		return list.sort((a, b) =>  {return this.getSortableDate(a.date) - this.getSortableDate(b.date);});
+	}
+
+	private getSortableDate (date:string): number {
+		const trimmedDateString = date.trim();
+		if (!trimmedDateString) {
+			return 0;
+		}
+
+		const beforeChristMatch = trimmedDateString.match(/^c?\.?\s*(\d+)\s*(BC|BCE)$/i);
+		if (beforeChristMatch) {
+			const yearNumber = parseInt(beforeChristMatch[1], 10);
+			// Astronomical year numbering: 1 BC is year 0, 2 BC is year -1, and so on,
+			// so BC years need to be shifted by one before negating.
+			return -(yearNumber - 1);
+		}
+
+		const annoDominiMatch = trimmedDateString.match(/^c?\.?\s*(\d+)\s*(AD|CE)$/i);
+		if (annoDominiMatch) {
+			return parseInt(annoDominiMatch[1], 10);
+		}
+
+		// Handles ISO-style dates, including negative astronomical years like "-0027-01-15".
+		const isoDateMatch = trimmedDateString.match(/^(-?\d{1,6})-(\d{2})-(\d{2})$/);
+		if (isoDateMatch) {
+			const yearPart = parseInt(isoDateMatch[1], 10);
+			const monthPart = parseInt(isoDateMatch[2], 10);
+			const dayPart = parseInt(isoDateMatch[3], 10);
+
+			// Add fractional offsets for month/day so entries within the same year still
+			// sort correctly relative to each other, rather than all collapsing to one point.
+			const monthFraction = (monthPart - 1) / 12;
+			const dayFraction = (dayPart - 1) / 366;
+
+			return yearPart + monthFraction + dayFraction;
+		}
+
+		// Fall back to the native parser for everything else, e.g. "March 1801" or full ISO strings.
+		const parsedTimestamp = Date.parse(trimmedDateString);
+		if (isNaN(parsedTimestamp)) {
+			return 0;
+		}
+
+		return new Date(parsedTimestamp).getTime();
 	}
 
 	private removeExisting(path: string): void {

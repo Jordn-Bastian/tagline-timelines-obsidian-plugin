@@ -3,9 +3,8 @@
 	"name": "Tagline - Timelines",
 	"version": "1.0.0",
 	"minAppVersion": "1.4.0",
-	"description": "Turn the notes you already have into a timeline. No lists, no manual code blocks, no hand-written YAML.",
+	"description": "Turn your notes into a timeline. No lists, no manual code blocks, no hand-written YAML.",
 	"author": "Jordn bastian",
-	"authorUrl": "",
 	"isDesktopOnly": true,
 	"fundingURL": "https://ko-fi.com/jordnbastian",
 	"authorURL": "https://www.jordnbastian.com"

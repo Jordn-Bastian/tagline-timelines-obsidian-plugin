@@ -97,7 +97,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 
 			let titleEl: HTMLDivElement | HTMLAnchorElement;
 
-			let formattedDate = moment(entry.date, "YYYY-MM-DD").format(this.plugin.settings.dateFormat);
+			let formattedDate = entry.date; // moment(entry.date, "YYYY-MM-DD").format(this.plugin.settings.dateFormat);
 
 			let dateEl: HTMLDivElement | null = null;
 
