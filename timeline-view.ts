@@ -120,7 +120,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 						entry.path,
 						entry.path,
 						evt.ctrlKey || evt.metaKey // open in new tab/pane if ctrl/cmd held
-					);
+					).then(r => {});
 				});
 
 				// Hover preview

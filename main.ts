@@ -69,7 +69,7 @@ export default class TimelinePlugin extends Plugin {
         );
 
         this.registerMarkdownCodeBlockProcessor(TIMELINE_CODEBLOCK_KEYS.block_title, (source, el, ctx) => {
-            const timelineConfig = parseYaml(source.trim());
+            const timelineConfig: Record<string, string | boolean> = parseYaml(source.trim());
 
             let configData = new TimelineRendererFormData();
 
@@ -257,7 +257,7 @@ export default class TimelinePlugin extends Plugin {
                 if (joined.length === 0)
                     continue;
 
-                let parsed = parseYaml(joined);
+                let parsed: Record<string, string | boolean> = parseYaml(joined);
 
                 if (parsed?.rendererID === rendererID) {
                     return section;

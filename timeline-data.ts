@@ -86,12 +86,12 @@ export class TimelineEntry {
 
     static constructFromFrontMatter(fm: FrontMatterCache, file:TFile) {
         const data = {
-            id: fm[TIMELINE_ENTRY_KEYS.id],
+            id: String(fm[TIMELINE_ENTRY_KEYS.id]),
             path: file.path,
             date: String(fm?.[TIMELINE_ENTRY_KEYS.date] ?? ""),
-            title: fm?.[TIMELINE_ENTRY_KEYS.title] ?? file.basename,
-            description: fm?.[TIMELINE_ENTRY_KEYS.description] ?? "",
-            picturePath: fm?.[TIMELINE_ENTRY_KEYS.picture_path] ?? ""
+            title: String(fm?.[TIMELINE_ENTRY_KEYS.title] ?? file.basename),
+            description: String(fm?.[TIMELINE_ENTRY_KEYS.description] ?? ""),
+            picturePath: String(fm?.[TIMELINE_ENTRY_KEYS.picture_path] ?? "")
         };
 
         return new TimelineEntry(data);

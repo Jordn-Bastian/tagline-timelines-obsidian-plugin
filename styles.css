@@ -80,7 +80,7 @@
 }
 
 .timeline-edit-icon {
-	position: absolute !important;
+	position: absolute;
 	top: 4px;
 	right: 36px;
 	left: auto;
