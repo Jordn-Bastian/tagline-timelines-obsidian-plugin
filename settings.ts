@@ -1,4 +1,4 @@
-import {App, PluginSettingTab, Setting} from 'obsidian';
+import {App, PluginSettingTab, Setting, SettingDefinitionItem} from 'obsidian';
 import TimelinePlugin from './main';
 
 export interface TimelinePluginSettings {
@@ -29,11 +29,27 @@ export class TimelinePluginSettingsTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Date display format')
-            .addDropdown((dropdown)=> {
+            .addDropdown((dropdown) => {
                 dropdown.addOptions(DATE_FORMATS).setValue(this.plugin.settings.dateFormat).onChange(async (value) => {
                     this.plugin.settings.dateFormat = value;
                     await this.plugin.saveSettings();
                 });
             });
+    }
+
+    // 1.13.0+: Obsidian calls this and skips display().
+    // Controls auto-bind to this.plugin.settings[key].
+    getSettingDefinitions(): SettingDefinitionItem[] {
+        return [
+            {
+                name: 'Date display format',
+                control: {
+                    type: 'dropdown',
+                    key: 'dateFormat',
+                    defaultValue: DATE_FORMATS["YYYY-MM-DD"],
+                    options: DATE_FORMATS,
+                },
+            },
+        ];
     }
 }

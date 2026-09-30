@@ -102,7 +102,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 
 
 			if (this.config.showDate) {
-				dateSlot.createEl("div", { cls: "timeline-entry-date", text: entry.date });
+				dateSlot.createDiv({ cls: "timeline-entry-date", text: entry.date });
 			}
 
 			if (this.config.link) {
@@ -130,11 +130,11 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 					});
 				});
 			} else {
-				titleSlot.createEl("div", {cls: "timeline-entry-title", text: entry.title});
+				titleSlot.createDiv({cls: "timeline-entry-title", text: entry.title});
 			}
 
 			if (entry.description && this.config.showDescription) {
-				newCard.thirdEl.createEl("div", {
+				newCard.thirdEl.createDiv({
 					cls: "timeline-entry-description",
 					text: entry.description,
 				});
@@ -148,7 +148,7 @@ export class TimelineRenderChild extends MarkdownRenderChild {
 						attr: { src, alt: entry.title },
 					});
 				} else {
-					newCard.pictureEl.createEl("div", {
+					newCard.pictureEl.createDiv( {
 						text: `Image not found: ${entry.picturePath}`,
 					});
 				}
