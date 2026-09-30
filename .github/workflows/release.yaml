@@ -29,7 +29,7 @@ jobs:
         uses: actions/attest@v4
         with:
           subject-path: |
-            main.ts
+            main.js
             manifest.json
             styles.css
 
@@ -42,4 +42,4 @@ jobs:
           gh release create "$tag" \
             --title="$tag" \
             --draft \
-            main.ts manifest.json styles.css
+            main.js manifest.json styles.css
