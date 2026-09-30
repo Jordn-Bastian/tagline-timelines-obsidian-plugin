@@ -79,7 +79,7 @@ Need multiple timelines in one note? Just add them and customize them as you ple
 
 ## Installation
 
-Install via Community Plugins.
+Install via [Community Plugins](https://community.obsidian.md/plugins/tagline-timelines).
 
 ## License
 
