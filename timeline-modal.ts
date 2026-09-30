@@ -124,7 +124,7 @@ export class AddTimelineEntryModal extends Modal {
                         new Notice("Timeline ID, date, and title are required.");
                         return;
                     }
-                    this.onSubmit(this.data);
+                    void this.onSubmit(this.data);
                     this.close();
                 });
         });
@@ -276,7 +276,7 @@ export class AddTimelineRendererModal extends Modal {
                         new Notice("Timeline ID is required.");
                         return;
                     }
-                    this.onSubmit(this.data, this.editMode);
+                    void this.onSubmit(this.data, this.editMode);
                     this.close();
                 });
         }).setDisabled(disableModal);

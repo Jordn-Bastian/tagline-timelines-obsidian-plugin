@@ -260,7 +260,7 @@ export default class TimelinePlugin extends Plugin {
                 if (joined.length === 0)
                     continue;
 
-                let parsed: Record<string, string | boolean> = parseYaml(joined);
+                const parsed = parseYaml(joined) as Record<string, string | boolean> | null;
 
                 if (parsed?.rendererID === rendererID) {
                     return section;

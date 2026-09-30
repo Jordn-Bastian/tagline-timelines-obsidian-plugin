@@ -4,6 +4,7 @@
 	"minAppVersion": "1.4.10",
 	"description": "Turn your notes into a timeline. No lists, no manual code blocks, no hand-written YAML.",
 	"author": "Jordn bastian",
+	"version": "1.0.2",
 	"isDesktopOnly": true,
 	"fundingURL": "https://ko-fi.com/jordnbastian",
 	"authorURL": "https://www.jordnbastian.com"
